@@ -1,0 +1,40 @@
+<!--
+title: Contact
+description: Contact BlueMind Therapy. Call (734) 252-5215, email info@bluemindmi.com, or send a message. Centers in Ypsilanti, Dearborn and Fort Gratiot, Michigan.
+nav: contact
+sticky: false
+-->
+<section class="page-intro"><div class="wrap">
+  <p class="eyebrow">Contact</p>
+  <h1>We would love to hear from you</h1>
+  <p class="lede">Questions about services, eligibility, insurance or openings at a center. Our intake team replies within one business day.</p>
+</div></section>
+
+<section class="band band-tight">
+  <div class="wrap" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;align-items:start">
+    <div style="display:grid;gap:1.25rem">
+      <div class="card"><div class="icon">{{icon:phone}}</div><h3>Call us</h3><p><a class="big" href="{{phone_href}}" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;text-decoration:none">{{phone}}</a></p><p class="muted" style="margin:0">Monday to Friday, 8:00 am to 8:00 pm<br>Saturday, 9:00 am to 6:00 pm</p></div>
+      <div class="card"><div class="icon">{{icon:mail}}</div><h3>Email</h3><p>General questions and referrals: <a href="mailto:{{email}}">{{email}}</a><br>Jobs and HR: <a href="mailto:{{careers_email}}">{{careers_email}}</a></p></div>
+      <div class="card"><div class="icon">{{icon:pin}}</div><h3>Visit a center</h3><p class="muted">Ypsilanti · Dearborn · Fort Gratiot</p><p style="margin:0"><a href="locations.html">Addresses, hours and directions {{icon:arrow}}</a></p></div>
+      <div class="notice small">Already a BlueMind family? Call the center directly or message your BCBA; this form is for new inquiries.</div>
+    </div>
+    <div class="form-card">
+      <h2 style="margin-bottom:0.25rem">Send a message</h2>
+      <p class="muted" style="margin-bottom:1.5rem">Tell us a little about what you need and the best way to reach you.</p>
+      <form data-endpoint="message" data-success-title="Message sent" data-success-body="Thank you. We will reply within one business day." novalidate>
+        <div class="fields">
+          <div><label for="c_name">Your name <span class="req" aria-hidden="true">*</span></label><input id="c_name" name="full_name" type="text" required maxlength="255" autocomplete="name"></div>
+          <div><label for="c_email">Email</label><input id="c_email" name="email" type="email" maxlength="255" autocomplete="email"></div>
+          <div><label for="c_phone">Phone</label><input id="c_phone" name="phone" type="tel" maxlength="40" autocomplete="tel"></div>
+          <div><label for="c_location">Nearest center</label><select id="c_location" name="preferred_location"><option value="">Not sure</option><option>Ypsilanti</option><option>Dearborn</option><option>Fort Gratiot</option><option>Any location</option></select></div>
+          <div class="full"><label for="c_topic">What is this about?</label><select id="c_topic" name="topic"><option value="">Select</option><option>Services for my child</option><option>Insurance and eligibility</option><option>Existing client question</option><option>Schools and community partners</option><option>Something else</option></select></div>
+          <div class="full"><label for="c_message">Message <span class="req" aria-hidden="true">*</span></label><textarea id="c_message" name="message" required maxlength="4000"></textarea><p class="hint">Please leave medical details out of this form. We will ask for what we need by phone.</p></div>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="website3">Leave this field empty</label><input id="website3" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="form-actions"><button class="btn btn-primary btn-lg" type="submit">Send message</button></div>
+        <div class="form-status" role="alert" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+<style>@media (max-width: 900px) { #main .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>

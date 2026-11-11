@@ -1,0 +1,130 @@
+<!--
+title: Refer a child
+description: Refer a child to BlueMind Therapy for ABA services. For parents, case managers, pediatricians and schools. Only the child's name is required to start.
+nav: refer
+sticky: false
+-->
+<section class="page-intro"><div class="wrap">
+  <p class="eyebrow">Referral form</p>
+  <h1>Refer a child for ABA services</h1>
+  <p class="lede">For parents, county case managers, physicians and schools. Only the child's name is required to begin; send what you have and our intake team will follow up for the rest. You will receive a reference number as soon as you submit.</p>
+</div></section>
+
+<section class="band band-tight">
+  <div class="wrap" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2rem;align-items:start">
+    <div class="form-card">
+      <form data-stepper data-endpoint="referral" data-success-title="Referral received" data-success-body="Thank you. Our intake team will review this referral and contact the parent or guardian and the referring person within two business days." novalidate>
+        <fieldset>
+          <legend>About the child</legend>
+          <div class="fields">
+            <div><label for="client_name">Child's full name <span class="req" aria-hidden="true">*</span></label><input id="client_name" name="client_name" type="text" required autocomplete="off" maxlength="255"></div>
+            <div><label for="date_of_birth">Date of birth</label><input id="date_of_birth" name="date_of_birth" type="date"></div>
+            <div><label for="gender">Gender</label><select id="gender" name="gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+            <div><label for="primary_language">Primary language at home</label><input id="primary_language" name="primary_language" type="text" list="languages" maxlength="100"><datalist id="languages"><option value="English"><option value="Arabic"><option value="Spanish"><option value="French"><option value="Bengali"><option value="Urdu"><option value="Other"></datalist></div>
+            <div><label for="case_number">Medicaid ID or case number <span class="opt">(if known)</span></label><input id="case_number" name="case_number" type="text" maxlength="100" autocomplete="off"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Parent or guardian</legend>
+          <div class="fields">
+            <div><label for="guardian_name">Parent or guardian's name</label><input id="guardian_name" name="guardian_name" type="text" maxlength="255"></div>
+            <div><label for="contact_number">Best phone number</label><input id="contact_number" name="contact_number" type="tel" maxlength="40" placeholder="(555) 555-5555"></div>
+            <div><label for="email">Email</label><input id="email" name="email" type="email" maxlength="255"></div>
+            <div><label for="guardian_address">Home address</label><input id="guardian_address" name="guardian_address" type="text" maxlength="1000" placeholder="Street, city, ZIP"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Insurance</legend>
+          <p class="legend-note">Medicaid through your county community mental health program, or another plan.</p>
+          <div class="fields">
+            <div><label for="primary_insurance">Primary insurance</label><input id="primary_insurance" name="primary_insurance" type="text" maxlength="255" placeholder="e.g. Medicaid (Washtenaw CMH)"></div>
+            <div><label for="primary_insurance_id">Primary insurance ID</label><input id="primary_insurance_id" name="primary_insurance_id" type="text" maxlength="100" autocomplete="off"></div>
+            <div><label for="secondary_insurance">Secondary insurance <span class="opt">(if any)</span></label><input id="secondary_insurance" name="secondary_insurance" type="text" maxlength="255"></div>
+            <div><label for="secondary_insurance_id">Secondary insurance ID</label><input id="secondary_insurance_id" name="secondary_insurance_id" type="text" maxlength="100" autocomplete="off"></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Services requested</legend>
+          <div class="fields">
+            <div class="full"><span class="label">Which services?</span>
+              <div class="choices">
+                <label><input type="checkbox" name="requested_services" value="ABA Therapy" data-multi checked> ABA Therapy</label>
+                <label><input type="checkbox" name="requested_services" value="Assessment" data-multi> Assessment</label>
+                <label><input type="checkbox" name="requested_services" value="Parent Training" data-multi> Parent Training</label>
+                <label><input type="checkbox" name="requested_services" value="Speech Therapy" data-multi> Speech Therapy</label>
+                <label><input type="checkbox" name="requested_services" value="Occupational Therapy" data-multi> Occupational Therapy</label>
+                <label><input type="checkbox" name="requested_services" value="Other" data-multi> Other</label>
+              </div>
+            </div>
+            <div><label for="other_service">Other service <span class="opt">(if selected)</span></label><input id="other_service" name="other_service" type="text" maxlength="255"></div>
+            <div><label for="service_setting">Preferred setting</label><select id="service_setting" name="service_setting"><option value="">No preference</option><option>Center</option><option>In-home</option><option>School</option><option>Community</option><option>Telehealth</option></select></div>
+            <div><label for="preferred_center">Preferred center</label><select id="preferred_center" name="preferred_center"><option value="">No preference</option><option value="Ypsilanti">Ypsilanti (Washtenaw County)</option><option value="Dearborn">Dearborn (Wayne County)</option><option value="Saint Clair">Fort Gratiot (St. Clair County)</option></select></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Background</legend>
+          <div class="fields">
+            <div><label for="has_autism_dx">Has an autism diagnosis?</label><select id="has_autism_dx" name="has_autism_dx" data-shows="dx_provider_wrap"><option value="">Select</option><option>Yes</option><option>No</option><option>Unknown</option></select></div>
+            <div id="dx_provider_wrap"><label for="dx_provider">Who made the diagnosis?</label><input id="dx_provider" name="dx_provider" type="text" maxlength="255" placeholder="Provider or clinic"></div>
+            <div><label for="had_aba_before">Had ABA therapy before?</label><select id="had_aba_before" name="had_aba_before" data-shows="agency_wrap"><option value="">Select</option><option>Yes</option><option>No</option><option>Unknown</option></select></div>
+            <div id="agency_wrap"><label for="agency_name">Previous agency</label><input id="agency_name" name="agency_name" type="text" maxlength="255"></div>
+            <div><label for="interpreter_needed">Interpreter needed?</label><select id="interpreter_needed" name="interpreter_needed" data-shows="interp_wrap"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
+            <div id="interp_wrap"><label for="interpreter_language">Interpreter language</label><input id="interpreter_language" name="interpreter_language" type="text" maxlength="100"></div>
+            <div class="full"><label for="current_concerns">Current concerns and goals</label><textarea id="current_concerns" name="current_concerns" maxlength="4000" placeholder="What would you most like to see change? Communication, behavior, daily routines, school, social skills…"></textarea></div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>About you</legend>
+          <p class="legend-note">So we can confirm receipt and keep you updated.</p>
+          <div class="fields">
+            <div><label for="referred_by">Your name and organization</label><input id="referred_by" name="referred_by" type="text" maxlength="255" placeholder="e.g. Jane Smith, Washtenaw CMH, or Parent"></div>
+            <div><label for="date_of_referral">Date of referral</label><input id="date_of_referral" name="date_of_referral" type="date"></div>
+            <div><label for="case_manager_email">Your email</label><input id="case_manager_email" name="case_manager_email" type="email" maxlength="255"></div>
+            <div><label for="case_manager_phone">Your phone</label><input id="case_manager_phone" name="case_manager_phone" type="tel" maxlength="40"></div>
+          </div>
+        </fieldset>
+
+        <div class="hp" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" type="submit">Submit referral</button>
+          <span class="small">This information is confidential and used only to process the referral.</span>
+        </div>
+        <div class="form-status" role="alert" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <aside style="display:grid;gap:1.25rem">
+      <div class="card card-mist">
+        <h3>What happens next</h3>
+        <ol style="padding-left:1.2rem;margin:0;color:var(--ink-2);display:grid;gap:0.5rem">
+          <li>You get a reference number right away.</li>
+          <li>Our intake team calls the parent or guardian within two business days.</li>
+          <li>We confirm the diagnosis and insurance, and request authorization from the county.</li>
+          <li>A BCBA schedules the assessment and the plan takes shape.</li>
+        </ol>
+      </div>
+      <div class="card">
+        <h3>Prefer to call?</h3>
+        <p>Our intake team takes referrals by phone, too.</p>
+        <p style="margin:0"><a class="btn btn-secondary" href="{{phone_href}}">{{icon:phone}} {{phone}}</a></p>
+        <p class="small muted" style="margin:0.9rem 0 0">Or email <a href="mailto:{{email}}">{{email}}</a>.</p>
+      </div>
+      <div class="notice small">Please do not send records by email. If we need evaluations or authorization letters, we will tell you the secure way to share them.</div>
+    </aside>
+  </div>
+</section>
+<script>
+  (function () {
+    var d = document.getElementById('date_of_referral');
+    if (d && !d.value) {
+      var now = new Date();
+      d.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+    }
+  })();
+</script>
+<style>@media (max-width: 900px) { #main .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>
