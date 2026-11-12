@@ -219,6 +219,37 @@
     form.addEventListener('bluemind:sent', function () { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } });
   });
 
+  // ── Remember the referrer's own details across submissions ───────────
+  // data-remember="storageKey:field,field" — only those fields are kept, so a
+  // case manager never retypes their name, phone and email; client fields
+  // always start blank.
+  document.querySelectorAll('form[data-remember]').forEach(function (form) {
+    var spec = form.dataset.remember.split(':'), key = spec[0], names = (spec[1] || '').split(',').filter(Boolean);
+    var note = form.querySelector('[data-remember-note]'), clear = form.querySelector('[data-remember-clear]');
+    var field = function (n) { return form.querySelector('[name="' + n + '"]'); };
+    try {
+      var saved = JSON.parse(localStorage.getItem(key) || 'null');
+      if (saved) {
+        var filled = false;
+        names.forEach(function (n) { var el = field(n); if (el && !el.value && saved[n]) { el.value = saved[n]; filled = true; } });
+        if (filled && note) note.hidden = false;
+      }
+    } catch (e) { /* ignore */ }
+    if (clear) clear.addEventListener('click', function () {
+      try { localStorage.removeItem(key); } catch (e) { /* ignore */ }
+      names.forEach(function (n) { var el = field(n); if (el) el.value = ''; });
+      if (note) note.hidden = true;
+      var first = field(names[0]); if (first) first.focus();
+    });
+    form.addEventListener('bluemind:sent', function () {
+      try {
+        var profile = {};
+        names.forEach(function (n) { var el = field(n); if (el && el.value.trim()) profile[n] = el.value; });
+        localStorage.setItem(key, JSON.stringify(profile));
+      } catch (e) { /* ignore */ }
+    });
+  });
+
   // ── Footer year ───────────────────────────────────────────────────────
   document.querySelectorAll('[data-year]').forEach(function (el) { el.textContent = String(new Date().getFullYear()); });
 })();

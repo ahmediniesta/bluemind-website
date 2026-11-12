@@ -13,7 +13,7 @@ sticky: false
 <section class="band band-tight">
   <div class="wrap" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2rem;align-items:start">
     <div class="form-card">
-      <form data-stepper data-endpoint="referral" data-autosave="bluemind_referral_draft" data-success-title="Success! Your referral has been submitted." data-success-body="Thank you. A receipt is on its way to the email you gave us, and our intake team will contact the parent or guardian within two business days. You will get an email each time the referral moves forward." data-success-again="Submit another referral" novalidate>
+      <form data-stepper data-endpoint="referral" data-autosave="bluemind_referral_draft" data-remember="bluemind_referrer_profile:referred_by,case_manager_phone,case_manager_email" data-success-title="Success! Your referral has been submitted." data-success-body="Thank you. A receipt is on its way to the email you gave us, and our intake team will contact the parent or guardian within two business days. You will get an email each time the referral moves forward." data-success-again="Submit another referral" novalidate>
 
         <fieldset data-step-label="Client Info">
           <legend>Client Information</legend>
@@ -47,11 +47,12 @@ sticky: false
 
         <fieldset data-step-label="Referral">
           <legend>Referral Information</legend>
+          <p class="legend-note" data-remember-note hidden>We filled in your referrer details from your last submission to save you time. <button type="button" class="link-btn" data-remember-clear>Not you? Clear</button></p>
           <div class="fields">
             <div><label for="referred_by">Referred By <span class="req" aria-hidden="true">*</span></label><input id="referred_by" name="referred_by" type="text" required maxlength="255"></div>
             <div><label for="date_of_referral">Date of Referral <span class="req" aria-hidden="true">*</span></label><input id="date_of_referral" name="date_of_referral" type="date" required></div>
-            <div><label for="case_manager_phone">Case Manager Phone</label><input id="case_manager_phone" name="case_manager_phone" type="tel" maxlength="40" placeholder="e.g. (555) 123-4567" data-phone-format></div>
-            <div><label for="case_manager_email">Case Manager Email</label><input id="case_manager_email" name="case_manager_email" type="email" maxlength="255" placeholder="e.g. manager@example.com"></div>
+            <div><label for="case_manager_phone">Case Manager Phone <span class="req" aria-hidden="true">*</span></label><input id="case_manager_phone" name="case_manager_phone" type="tel" required maxlength="40" placeholder="e.g. (555) 123-4567" data-phone-format></div>
+            <div><label for="case_manager_email">Case Manager Email <span class="req" aria-hidden="true">*</span></label><input id="case_manager_email" name="case_manager_email" type="email" required maxlength="255" placeholder="e.g. manager@example.com"></div>
             <div class="full"><span class="label" id="center-label">Preferred Center Location <span class="req" aria-hidden="true">*</span></span>
               <div class="choices" role="radiogroup" aria-labelledby="center-label">
                 <label><input type="radio" name="preferred_center" value="Dearborn" required> Dearborn</label>
@@ -66,9 +67,7 @@ sticky: false
           <div class="fields">
             <div class="full" data-require-one="requested_services" data-require-message="Please select at least one service"><span class="label" id="services-label">Check all that apply <span class="req" aria-hidden="true">*</span></span>
               <div class="choices" role="group" aria-labelledby="services-label">
-                <label><input type="checkbox" name="requested_services" value="ABA Therapy" data-multi> Applied Behavior Analysis (ABA) Therapy</label>
-                <label><input type="checkbox" name="requested_services" value="Speech Therapy" data-multi> Speech Therapy</label>
-                <label><input type="checkbox" name="requested_services" value="Occupational Therapy" data-multi> Occupational Therapy</label>
+                <label><input type="checkbox" name="requested_services" value="ABA Therapy" data-multi checked> Applied Behavior Analysis (ABA) Therapy</label>
                 <label><input type="checkbox" name="requested_services" value="Other" data-multi> Other (please specify)</label>
               </div>
               <input id="other_service" name="other_service" type="text" maxlength="255" placeholder="If 'Other' selected, specify here" aria-label="Other service" style="margin-top:0.6rem">
