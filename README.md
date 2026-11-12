@@ -30,7 +30,10 @@ automatically and show an illustrated panel until then.
 The dashboard must allow this site's origin: `CORS_ORIGINS` on Railway needs
 `https://bluemindmi.com,https://www.bluemindmi.com` added.
 
-## Go live (GitHub Pages, free)
+## Go live: two ways
+
+### A. GitHub Pages (free, recommended)
+
 
 1. Create the GitHub repo and push (from this folder):
 
@@ -56,5 +59,26 @@ The dashboard must allow this site's origin: `CORS_ORIGINS` on Railway needs
 4. Back in GitHub Pages, tick *Enforce HTTPS* once the certificate appears (up to an hour).
 5. Cancel the GoDaddy Website Builder subscription after the new site is confirmed live.
 
-Any push to `main` republishes within a minute. Railway or any static host works the same
-way: upload the repo root.
+Any push to `main` republishes within a minute.
+
+### B. GoDaddy Web Hosting (keeps everything at GoDaddy, about $6 to $12 a month)
+
+The current site runs on GoDaddy *Website Builder*, which cannot host custom files. Hosting
+here means GoDaddy's regular **Web Hosting** (Linux, cPanel) plan.
+
+1. GoDaddy → My Products → **Web Hosting** → buy the Economy (Linux) plan if there is none,
+   and pick `bluemindmi.com` when it asks which domain to use. GoDaddy then points the
+   domain's A record at the hosting server itself; the Website Builder stops answering.
+2. Run `tools/package.sh` on the Mac. It writes `~/Desktop/bluemindmi-site.zip`.
+3. Hosting dashboard → **cPanel Admin** → **File Manager** → `public_html` → delete the
+   placeholder files there → **Upload** the zip → right click it → **Extract** → delete the zip.
+4. Hosting dashboard → **SSL**: turn on the certificate that comes with the plan so
+   https://bluemindmi.com works (the `.htaccess` already forces HTTPS and drops `www`).
+5. Check https://bluemindmi.com/services and https://bluemindmi.com/nothing-here (the 404 page).
+6. Cancel the Website Builder subscription once the new site is confirmed live.
+
+Later updates: run `tools/package.sh` and upload again, or give Claude an FTP account from
+cPanel → FTP Accounts and `tools/deploy_godaddy.sh` pushes the site in one command.
+
+Either way, the dashboard on Railway needs `CORS_ORIGINS` to include
+`https://bluemindmi.com,https://www.bluemindmi.com` before the forms and the chat can post.
