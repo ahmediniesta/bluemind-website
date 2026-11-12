@@ -1,0 +1,90 @@
+<!--
+title: Check your status
+description: Check the status of a referral, job application or message you sent to BlueMind Therapy using your reference number.
+nav: none
+sticky: false
+-->
+<section class="page-intro"><div class="wrap">
+  <p class="eyebrow">Status</p>
+  <h1>Check your status</h1>
+  <p class="lede">Enter the reference number from your receipt email (it starts with REF, APP or MSG) and the email address you used. We show where things stand and what happens next.</p>
+</div></section>
+<section class="band band-tight">
+  <div class="wrap" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;align-items:start">
+    <div class="form-card">
+      <form id="statusForm" novalidate>
+        <div class="fields">
+          <div><label for="s_ref">Reference number <span class="req" aria-hidden="true">*</span></label><input id="s_ref" name="reference" type="text" required maxlength="20" placeholder="REF-000123" autocomplete="off" style="text-transform:uppercase"></div>
+          <div><label for="s_email">Email you used <span class="req" aria-hidden="true">*</span></label><input id="s_email" name="email" type="email" required maxlength="255" autocomplete="email"></div>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="website4">Leave this field empty</label><input id="website4" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="form-actions"><button class="btn btn-primary btn-lg" type="submit">Check status</button></div>
+        <div class="form-status" role="alert" aria-live="polite"></div>
+      </form>
+      <div class="status-result" id="statusResult" aria-live="polite">
+        <hr style="border:0;border-top:1px solid var(--line);margin:1.5rem 0">
+        <p class="eyebrow" id="r_kind"></p>
+        <div class="status-pill" id="r_pill">{{icon:check}} <span id="r_label"></span></div>
+        <div class="status-row">
+          <div><span class="label">Reference</span><span id="r_ref" class="muted"></span></div>
+          <div><span class="label">What happens next</span><span id="r_next" class="muted"></span></div>
+          <div><span class="label">Received</span><span id="r_sub" class="muted"></span></div>
+          <div><span class="label">Last update</span><span id="r_upd" class="muted"></span></div>
+        </div>
+        <ol class="timeline" id="r_timeline"></ol>
+        <p class="small muted" style="margin:1rem 0 0">Need to add something or talk to us? Call {{phone}} or email <a href="mailto:{{email}}">{{email}}</a> and quote your reference number.</p>
+      </div>
+    </div>
+    <aside style="display:grid;gap:1.25rem">
+      <div class="card card-mist"><h3>Where to find your reference number</h3><p>It is on the confirmation screen after you submit and in the receipt email, in the subject line. Referrals start with REF, job applications with APP, messages with MSG.</p></div>
+      <div class="card"><h3>Our promise</h3><ul class="checks"><li>{{icon:check}}<span>Referrals: we follow up within {{reply:referral}}</span></li><li>{{icon:check}}<span>Applications: we respond within {{reply:application}}</span></li><li>{{icon:check}}<span>Messages: we reply within {{reply:message}}</span></li></ul></div>
+    </aside>
+  </div>
+</section>
+<script>
+(function () {
+  var cfg = window.BLUEMIND || {};
+  var STEPS = {
+    referral: ['new', 'contacted', 'intake_scheduled', 'accepted'],
+    application: ['new', 'contacted', 'interviewing', 'offered', 'hired'],
+    message: ['new', 'replied', 'closed']
+  };
+  var NAMES = {
+    new: 'Received', contacted: 'Contacted', intake_scheduled: 'Intake scheduled', accepted: 'Accepted for services',
+    interviewing: 'Interviewing', offered: 'Offer made', hired: 'Hired', replied: 'Replied', closed: 'Closed', declined: 'Not proceeding'
+  };
+  var KIND = { referral: 'Referral', application: 'Job application', message: 'Message' };
+  var form = document.getElementById('statusForm'), out = document.getElementById('statusResult'), box = form.querySelector('.form-status');
+  var q = new URLSearchParams(location.search).get('ref');
+  if (q) document.getElementById('s_ref').value = q.toUpperCase();
+  function fmt(d) { var p = d.split('-'); return p.length === 3 ? new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : d; }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (!form.reportValidity()) return;
+    box.className = 'form-status'; out.classList.remove('show');
+    var btn = form.querySelector('button'); btn.disabled = true; btn.textContent = 'Checking…';
+    fetch((cfg.apiBase || '') + '/api/website-portal/status', { method: 'POST', mode: 'cors', credentials: 'omit', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reference: form.reference.value.trim(), email: form.email.value.trim(), website: form.website.value }) })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (b) { if (!r.ok) throw new Error((b && typeof b.detail === 'string' && b.detail) || 'We could not check that right now. Please call ' + (cfg.phone || '(734) 252-5215') + '.'); return b; }); })
+      .then(function (b) {
+        document.getElementById('r_kind').textContent = KIND[b.kind] || 'Submission';
+        document.getElementById('r_label').textContent = b.label;
+        var pill = document.getElementById('r_pill');
+        pill.className = 'status-pill ' + (b.status === 'declined' || b.status === 'closed' ? 'closed' : (b.status === 'new' ? 'pending' : ''));
+        document.getElementById('r_ref').textContent = b.reference;
+        document.getElementById('r_next').textContent = b.next_step;
+        document.getElementById('r_sub').textContent = fmt(b.submitted_on);
+        document.getElementById('r_upd').textContent = fmt(b.updated_on);
+        var tl = document.getElementById('r_timeline'); tl.innerHTML = '';
+        var steps = STEPS[b.kind] || [];
+        var at = steps.indexOf(b.status);
+        if (b.status === 'declined') { steps = steps.slice(0, 1).concat(['declined']); at = 1; }
+        steps.forEach(function (s, i) { var li = document.createElement('li'); li.textContent = NAMES[s] || s; if (i < at) li.className = 'done'; if (i === at) li.className = 'current'; tl.appendChild(li); });
+        out.classList.add('show'); out.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      })
+      .catch(function (err) { box.className = 'form-status err'; box.textContent = err.message; })
+      .then(function () { btn.disabled = false; btn.textContent = 'Check status'; });
+  });
+})();
+</script>
+<style>@media (max-width: 900px) { #main .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>

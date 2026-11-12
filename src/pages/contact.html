@@ -7,7 +7,7 @@ sticky: false
 <section class="page-intro"><div class="wrap">
   <p class="eyebrow">Contact</p>
   <h1>We would love to hear from you</h1>
-  <p class="lede">Questions about services, eligibility, insurance or openings at a center. Our intake team replies within one business day.</p>
+  <p class="lede">Questions about services, eligibility, insurance or openings at a center. Our intake team replies within {{reply:message}}.</p>
 </div></section>
 
 <section class="band band-tight">
@@ -16,12 +16,13 @@ sticky: false
       <div class="card"><div class="icon">{{icon:phone}}</div><h3>Call us</h3><p><a class="big" href="{{phone_href}}" style="font-family:var(--font-display);font-size:1.5rem;font-weight:600;text-decoration:none">{{phone}}</a></p><p class="muted" style="margin:0">Monday to Friday, 8:00 am to 8:00 pm<br>Saturday, 9:00 am to 6:00 pm</p></div>
       <div class="card"><div class="icon">{{icon:mail}}</div><h3>Email</h3><p>General questions and referrals: <a href="mailto:{{email}}">{{email}}</a><br>Jobs and HR: <a href="mailto:{{careers_email}}">{{careers_email}}</a></p></div>
       <div class="card"><div class="icon">{{icon:pin}}</div><h3>Visit a center</h3><p class="muted">Ypsilanti · Dearborn · Fort Gratiot</p><p style="margin:0"><a href="locations.html">Addresses, hours and directions {{icon:arrow}}</a></p></div>
+      <div class="card"><div class="icon">{{icon:clipboard}}</div><h3>Already sent us something?</h3><p style="margin:0"><a href="status.html">Check the status of a referral, application or message {{icon:arrow}}</a></p></div>
       <div class="notice small">Already a BlueMind family? Call the center directly or message your BCBA; this form is for new inquiries.</div>
     </div>
     <div class="form-card">
       <h2 style="margin-bottom:0.25rem">Send a message</h2>
       <p class="muted" style="margin-bottom:1.5rem">Tell us a little about what you need and the best way to reach you.</p>
-      <form data-endpoint="message" data-success-title="Message sent" data-success-body="Thank you. We will reply within one business day." novalidate>
+      <form data-endpoint="message" data-success-title="Message sent" data-success-body="Thank you. We will reply within one business day. If you gave us an email address, a receipt with your reference number is on its way." novalidate>
         <div class="fields">
           <div><label for="c_name">Your name <span class="req" aria-hidden="true">*</span></label><input id="c_name" name="full_name" type="text" required maxlength="255" autocomplete="name"></div>
           <div><label for="c_email">Email</label><input id="c_email" name="email" type="email" maxlength="255" autocomplete="email"></div>

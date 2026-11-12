@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src" / "pages"
 SITE = "https://bluemindmi.com"
 
+REPLY = {"referral": "two business days", "application": "three business days", "message": "one business day"}
+
 ORG = {
     "name": "BlueMind Therapy",
     "legal": "BlueMind Therapy LLC",
@@ -36,20 +38,23 @@ CENTERS = [
         "street": "1122 Walnut Street", "city": "Ypsilanti", "state": "MI", "zip": "48198",
         "payer": "Washtenaw County Community Mental Health",
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "9:00 am to 6:00 pm"), ("Sunday", "Closed")],
+        "opening": ["Mo-Fr 08:00-20:00", "Sa 09:00-18:00"],
         "lat": 42.2443, "lng": -83.6090,
     },
     {
         "key": "dearborn", "name": "Dearborn", "county": "Wayne County",
         "street": "18800 Hubbard Drive", "city": "Dearborn", "state": "MI", "zip": "48126",
         "payer": "Detroit Wayne Integrated Health Network (DWIHN)",
-        "hours": [("Monday to Friday", "Call for hours")],
+        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday and Sunday", "Closed")],
+        "opening": ["Mo-Fr 08:00-20:00"],
         "lat": 42.3157, "lng": -83.2286,
     },
     {
         "key": "fort-gratiot", "name": "Fort Gratiot", "county": "St. Clair County",
         "street": "4435 24th Avenue", "city": "Fort Gratiot", "state": "MI", "zip": "48059",
         "payer": "St. Clair County Community Mental Health",
-        "hours": [("Monday to Friday", "Call for hours")],
+        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday and Sunday", "Closed")],
+        "opening": ["Mo-Fr 08:00-20:00"],
         "lat": 43.0340, "lng": -82.4530,
     },
 ]
@@ -83,6 +88,10 @@ ICONS = {
     "chart": '<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
     "shield": '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
     "star": '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/>',
+    "cctv": '<path d="M3 5h18"/><path d="M6 5v3.5a6 6 0 0 0 12 0V5"/><circle cx="12" cy="9" r="2.2"/><path d="M12 14.5V19"/><path d="M8.5 19h7"/>',
+    "lock": '<rect x="5" y="11" width="14" height="10" rx="2.2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.3"/>',
+    "id-check": '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.5-1.6 1.6-2.4 3-2.4s2.5.8 3 2.4"/><path d="m14 11 1.5 1.5L18.5 9.5"/><path d="M14 15h4.5"/>',
+    "eye": '<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>',
     "sun": '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
 }
 
@@ -133,6 +142,29 @@ def photo(name: str, label: str, cls: str = "") -> str:
     )
 
 
+SAFETY = [
+    ("cctv", "24/7", "Cameras record every room, 24 hours a day", "كاميرات تسجّل كل غرفة على مدار الساعة", "Cámaras graban cada sala las 24 horas"),
+    ("lock", "", "Locked doors. Only staff and checked-in families enter", "أبواب مقفلة، لا يدخل إلا الموظفون والعائلات المسجّلة", "Puertas con cerradura. Solo entran el personal y las familias registradas"),
+    ("id-check", "", "Every team member passes background checks", "كل عضو في الفريق يجتاز فحص السجل الجنائي", "Todo el personal pasa verificación de antecedentes"),
+    ("eye", "", "A BCBA supervises every child's program", "محلل سلوك معتمد يشرف على برنامج كل طفل", "Un BCBA supervisa el programa de cada niño"),
+]
+
+
+def safety_block() -> str:
+    cards = ""
+    for name, badge, en, ar, es in SAFETY:
+        badge_html = f'<span class="safety-badge">{badge}</span>' if badge else ""
+        cards += (
+            '<li class="safety-card">'
+            f'<div class="safety-icon">{icon(name)}{badge_html}</div>'
+            f'<p class="safety-en">{en}</p>'
+            f'<p class="safety-l" lang="ar" dir="rtl">{ar}</p>'
+            f'<p class="safety-l" lang="es">{es}</p>'
+            '</li>'
+        )
+    return f'<ul class="safety clean">{cards}</ul>'
+
+
 def center_card(c: dict, with_photo: bool = False, detailed: bool = False) -> str:
     hours = "".join(f"<tr><td>{d}</td><td>{h}</td></tr>" for d, h in c["hours"])
     photo_html = photo(c["key"], f"The BlueMind Therapy center in {c['name']}", "wide") if with_photo else ""
@@ -171,6 +203,7 @@ def json_ld() -> str:
             },
             "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lng"]},
             "areaServed": c["county"],
+            "openingHours": c["opening"],
             "medicalSpecialty": "Behavioral health",
             "image": f"{SITE}/assets/logo.png",
         })
@@ -228,7 +261,7 @@ def footer() -> str:
         f'<p><a class="social" href="{ORG["instagram"]}" target="_blank" rel="noopener">{icon("instagram")} Instagram</a></p></div>'
         f'<div><h4>Our centers</h4><ul>{centers}</ul></div>'
         '<div><h4>Families</h4><ul><li><a href="services.html">Services</a></li><li><a href="index.html#how-it-works">How it works</a></li>'
-        '<li><a href="index.html#faq">Questions parents ask</a></li><li><a href="refer.html">Refer a child</a></li><li><a href="contact.html">Contact us</a></li></ul></div>'
+        '<li><a href="index.html#faq">Questions parents ask</a></li><li><a href="refer.html">Refer a child</a></li><li><a href="status.html">Check your status</a></li><li><a href="contact.html">Contact us</a></li></ul></div>'
         f'<div><h4>Company</h4><ul><li><a href="about.html">About BlueMind</a></li><li><a href="careers.html">Careers</a></li><li><a href="locations.html">Locations</a></li>'
         f'<li><a href="privacy.html">Privacy notice</a></li><li><a href="{ORG["dashboard"]}" rel="nofollow">Staff sign in</a></li></ul></div>'
         '</div><div class="legal"><span>© <span data-year>2026</span> BlueMind Therapy LLC. All rights reserved.</span>'
@@ -289,6 +322,9 @@ def expand(body: str) -> str:
     body = body.replace("{{centers-detailed}}", "".join(center_card(c, with_photo=True, detailed=True) for c in CENTERS))
     for k, v in ORG.items():
         body = body.replace("{{" + k + "}}", v)
+    for k, v in REPLY.items():
+        body = body.replace("{{reply:" + k + "}}", v)
+    body = body.replace("{{safety}}", safety_block())
     return body
 
 

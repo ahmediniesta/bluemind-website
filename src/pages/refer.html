@@ -13,7 +13,7 @@ sticky: false
 <section class="band band-tight">
   <div class="wrap" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2rem;align-items:start">
     <div class="form-card">
-      <form data-stepper data-endpoint="referral" data-success-title="Referral received" data-success-body="Thank you. Our intake team will review this referral and contact the parent or guardian and the referring person within two business days." novalidate>
+      <form data-stepper data-endpoint="referral" data-success-title="Referral received" data-success-body="Thank you. A receipt is on its way to the email you gave us, and you will hear from our intake team within two business days. You will get an email each time the referral moves forward." novalidate>
         <fieldset>
           <legend>About the child</legend>
           <div class="fields">
@@ -102,11 +102,12 @@ sticky: false
       <div class="card card-mist">
         <h3>What happens next</h3>
         <ol style="padding-left:1.2rem;margin:0;color:var(--ink-2);display:grid;gap:0.5rem">
-          <li>You get a reference number right away.</li>
-          <li>Our intake team calls the parent or guardian within two business days.</li>
+          <li>You get a reference number right away and an email receipt.</li>
+          <li>Our intake team calls the parent or guardian within {{reply:referral}}.</li>
           <li>We confirm the diagnosis and insurance, and request authorization from the county.</li>
           <li>A BCBA schedules the assessment and the plan takes shape.</li>
         </ol>
+        <p class="small muted" style="margin:0.9rem 0 0">You receive an email each time the status changes, and you can <a href="status.html">check the status</a> any time with your reference number.</p>
       </div>
       <div class="card">
         <h3>Prefer to call?</h3>

@@ -93,7 +93,18 @@ nav: home
   </div>
 </section>
 
-<section class="band" id="faq" aria-labelledby="faq-h">
+<section class="band" id="safety" aria-labelledby="safety-h">
+  <div class="wrap">
+    <div class="section-head center" style="margin-inline:auto">
+      <p class="eyebrow">Safe by design</p>
+      <h2 id="safety-h">What every family can count on at our centers</h2>
+      <p>Pictures first, words second, so every parent understands it at a glance.</p>
+    </div>
+    {{safety}}
+  </div>
+</section>
+
+<section class="band band-mist" id="faq" aria-labelledby="faq-h">
   <div class="wrap split" style="align-items:start">
     <div>
       <p class="eyebrow">For families</p>
@@ -113,7 +124,7 @@ nav: home
   </div>
 </section>
 
-<section class="band band-mist" id="partners" aria-labelledby="partners-h">
+<section class="band" id="partners" aria-labelledby="partners-h">
   <div class="wrap split rev">
     <div class="card" style="box-shadow:var(--shadow)">
       <div class="icon">{{icon:clipboard}}</div>
@@ -124,17 +135,17 @@ nav: home
     <div>
       <p class="eyebrow">For referral partners</p>
       <h2 id="partners-h">Case managers, pediatricians and schools</h2>
-      <p>We accept referrals from supports coordinators and case managers at Washtenaw County CMH, DWIHN and St. Clair County CMH, from physicians, from schools and directly from families. You will get a reference number the moment you submit, and our intake team confirms receipt and next steps with you.</p>
+      <p>We accept referrals from supports coordinators and case managers at Washtenaw County CMH, DWIHN and St. Clair County CMH, from physicians, from schools and directly from families. You get a reference number the moment you submit, an email receipt, and an email every time the referral moves forward. Our intake team follows up within {{reply:referral}}.</p>
       <ul class="checks">
         <li>{{icon:check}}<span>Preferred center and setting noted on every referral</span></li>
         <li>{{icon:check}}<span>Interpreter needs captured up front</span></li>
-        <li>{{icon:check}}<span>Status updates to the case manager on request</span></li>
+        <li>{{icon:check}}<span>Status emails at every step, and a status page you can check any time</span></li>
       </ul>
     </div>
   </div>
 </section>
 
-<section class="band" id="careers" aria-labelledby="careers-h">
+<section class="band band-mist" id="careers" aria-labelledby="careers-h">
   <div class="wrap split">
     <div>
       <p class="eyebrow">Careers</p>
@@ -152,8 +163,8 @@ nav: home
     <div class="section-head"><p class="eyebrow">Get in touch</p><h2 id="contact-h">Talk to a real person today</h2><p style="color:rgba(255,255,255,.85)">Our intake team answers questions about eligibility, insurance and openings at each center.</p></div>
     <div class="contact-grid">
       <div class="contact-item"><div class="label">Call</div><a class="big" href="{{phone_href}}">{{phone}}</a><p>Monday to Friday, 8:00 am to 8:00 pm. Saturday, 9:00 am to 6:00 pm.</p></div>
-      <div class="contact-item"><div class="label">Email</div><a class="big" href="mailto:{{email}}">{{email}}</a><p>We reply within one business day.</p></div>
-      <div class="contact-item"><div class="label">Write to us</div><a class="big" href="contact.html">Send a message</a><p>Tell us a little about your child and the best time to call.</p></div>
+      <div class="contact-item"><div class="label">Email</div><a class="big" href="mailto:{{email}}">{{email}}</a><p>We reply within {{reply:message}}.</p></div>
+      <div class="contact-item"><div class="label">Already sent something?</div><a class="big" href="status.html">Check your status</a><p>Referrals, applications and messages, by reference number.</p></div>
     </div>
   </div>
 </section>

@@ -50,7 +50,7 @@ sticky: false
     <div class="form-card">
       <h2 id="apply-h" style="margin-bottom:0.25rem">Apply online</h2>
       <p class="muted" style="margin-bottom:1.5rem">Takes about three minutes. Attach your resume as a PDF or Word file.</p>
-      <form data-stepper data-endpoint="application" data-success-title="Application received" data-success-body="Thank you for applying. Our hiring team reviews every application and will reach out by phone or email about next steps." enctype="multipart/form-data" novalidate>
+      <form data-stepper data-endpoint="application" data-success-title="Application received" data-success-body="Thank you for applying. A receipt is on its way to your email, and our hiring team will be in touch within three business days." enctype="multipart/form-data" novalidate>
         <fieldset>
           <legend>About you</legend>
           <div class="fields">
@@ -90,11 +90,12 @@ sticky: false
       <div class="card card-mist">
         <h3>After you apply</h3>
         <ol style="padding-left:1.2rem;margin:0;color:var(--ink-2);display:grid;gap:0.5rem">
-          <li>Our hiring team reviews your application.</li>
+          <li>You get an email receipt right away. Our hiring team reviews your application within {{reply:application}}.</li>
           <li>A short phone screen to talk about the role, centers and schedule.</li>
           <li>An in-person interview at the center, including time with the clinical team.</li>
           <li>Offer, background checks and onboarding.</li>
         </ol>
+        <p class="small muted" style="margin:0.9rem 0 0">We email you at every stage, and you can <a href="status.html">check your status</a> any time.</p>
       </div>
       <div class="card">
         <h3>Questions about a role?</h3>
