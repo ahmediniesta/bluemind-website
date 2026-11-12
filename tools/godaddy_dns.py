@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Point bluemindmi.com at GitHub Pages through the GoDaddy Domains API.
 
-    export GODADDY_API_KEY=...  GODADDY_API_SECRET=...
+    export GODADDY_TOKEN=...          # Personal Access Token from https://developer.godaddy.com (Domains & DNS scope)
+    # or the older key pair:  export GODADDY_API_KEY=...  GODADDY_API_SECRET=...
     python3 tools/godaddy_dns.py --show            # print the current records
     python3 tools/godaddy_dns.py --backup FILE     # save every record to FILE (json)
     python3 tools/godaddy_dns.py --apply           # A @ -> GitHub Pages, CNAME www -> ahmediniesta.github.io
@@ -9,7 +10,9 @@
 
 Only the A records at @ and the CNAME at www are ever written. MX, TXT, SRV and every
 other record (Google Workspace mail, verification strings) are never touched.
-A production key is made at https://developer.godaddy.com/keys ("Production", not "OTE").
+A Personal Access Token is made in the GoDaddy developer dashboard (Custom permissions,
+Domains & DNS only, 7 days). It is sent as "Authorization: Bearer"; the deprecated
+key:secret pair is sent as "sso-key".
 """
 import argparse, json, os, sys, urllib.request, urllib.error
 
@@ -21,9 +24,12 @@ TTL = 600
 
 
 def auth() -> str:
+    token = os.environ.get("GODADDY_TOKEN")
+    if token:
+        return f"Bearer {token.strip()}"
     key, secret = os.environ.get("GODADDY_API_KEY"), os.environ.get("GODADDY_API_SECRET")
     if not key or not secret:
-        sys.exit("set GODADDY_API_KEY and GODADDY_API_SECRET first")
+        sys.exit("set GODADDY_TOKEN (personal access token) or GODADDY_API_KEY + GODADDY_API_SECRET first")
     return f"sso-key {key}:{secret}"
 
 

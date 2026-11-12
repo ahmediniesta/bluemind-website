@@ -32,17 +32,17 @@ The dashboard must allow this site's origin: `CORS_ORIGINS` on Railway needs
 
 ## Go live with no clicking: GoDaddy API
 
-GoDaddy gives API access to any account with one active domain. Make a **Production** key at
-https://developer.godaddy.com/keys, then:
+GoDaddy gives API access to any account with one active domain. Make a **Personal Access Token** (Custom permissions, Domains & DNS only, 7 days) at
+https://developer.godaddy.com (Dashboard → API tokens), then:
 
 ```sh
-export GODADDY_API_KEY=... GODADDY_API_SECRET=...
+export GODADDY_TOKEN=...
 python3 tools/godaddy_dns.py --backup dns-before.json   # keep this: rollback = --restore dns-before.json
 python3 tools/godaddy_dns.py --apply                     # A @ -> GitHub Pages, CNAME www -> ahmediniesta.github.io
 ```
 
 Only the A records at `@` and the `www` CNAME are written; mail (MX) and verification (TXT) records are
-never touched. Delete the key at developer.godaddy.com/keys when done. Then, once
+never touched. Delete the token in the developer dashboard when done. Then, once
 `gh api repos/ahmediniesta/bluemind-website/pages` shows the certificate, enforce HTTPS:
 `gh api -X PUT repos/ahmediniesta/bluemind-website/pages -F https_enforced=true`.
 
