@@ -490,21 +490,182 @@
   });
 })();
 
-
-/* ── Floating "Message us" panel ─────────────────────────────────────────── */
+/* ── Chat with the team ──────────────────────────────────────────────────── */
 (function () {
   'use strict';
-  var root = document.getElementById('msg'); if (!root) return;
-  var fab = root.querySelector('.msg-fab'), panel = root.querySelector('.msg-panel'), close = root.querySelector('.msg-close');
-  function open() {
-    root.setAttribute('data-open', 'true'); panel.hidden = false; fab.setAttribute('aria-expanded', 'true');
-    var first = panel.querySelector('input, textarea'); if (first) setTimeout(function () { first.focus(); }, 50);
+  var root = document.getElementById('chat'); if (!root) return;
+  var cfg = window.BLUEMIND || {};
+  var API = (cfg.apiBase || '') + '/api/website-portal/chat';
+  var KEY = 'bluemind_chat_token';
+  var fab = root.querySelector('.chat-fab'), badge = root.querySelector('.chat-badge'), win = root.querySelector('.chat-window');
+  var closeBtn = root.querySelector('.chat-close'), log = root.querySelector('[data-chat-log]'), quick = root.querySelector('[data-chat-quick]');
+  var compose = root.querySelector('[data-chat-compose]'), input = compose.querySelector('textarea'), sendBtn = compose.querySelector('.chat-send');
+  var statusEl = root.querySelector('[data-chat-status]');
+  var token = null, lastId = 0, open = false, pollTimer = null, typingEl = null, typingSentAt = 0, contactShown = false, hasContact = false, lastReceipt = null, unread = 0;
+  var welcome = (cfg.chat && cfg.chat.welcome) || "Hi there 👋 You're chatting with BlueMind Therapy. Ask us anything. A real person replies here.";
+  var quickReplies = (cfg.chat && cfg.chat.quick) || [];
+  try { token = localStorage.getItem(KEY); } catch (e) { token = null; }
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]; }); }
+  function linkify(s) { return esc(s).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>'); }
+  function timeOf(iso) { var d = new Date(iso.endsWith('Z') ? iso : iso + 'Z'); return isNaN(d) ? '' : d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }); }
+  function scrollDown() { log.scrollTop = log.scrollHeight; }
+  function setStatus(text) { if (text) statusEl.textContent = text; }
+  function forget() { try { localStorage.removeItem(KEY); } catch (e) { /* ignore */ } token = null; }
+
+  function bubble(sender, body, opts) {
+    opts = opts || {};
+    var el = document.createElement('div');
+    el.className = 'bubble ' + (sender === 'visitor' ? 'me' : sender === 'staff' ? 'them' : 'system');
+    el.innerHTML = linkify(body);
+    if (opts.id) el.dataset.id = opts.id;
+    if (opts.time) el.title = timeOf(opts.time);
+    log.appendChild(el);
+    return el;
   }
-  function shut() {
-    root.removeAttribute('data-open'); panel.hidden = true; fab.setAttribute('aria-expanded', 'false'); fab.focus();
+  function setReceipt(state) {
+    if (lastReceipt) lastReceipt.remove();
+    var me = log.querySelectorAll('.bubble.me'); if (!me.length) return;
+    lastReceipt = document.createElement('div');
+    lastReceipt.className = 'receipt' + (state === 'Read' ? ' read' : '');
+    lastReceipt.innerHTML = (state === 'Read' ? '<svg class="ic" aria-hidden="true"><use href="#i-check2"/></svg>' : '') + esc(state);
+    me[me.length - 1].insertAdjacentElement('afterend', lastReceipt);
   }
-  fab.addEventListener('click', open);
-  close.addEventListener('click', shut);
-  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) shut(); });
-  document.querySelectorAll('a[data-open-message]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); open(); }); });
+  function showTyping(on) {
+    if (on && !typingEl) { typingEl = document.createElement('div'); typingEl.className = 'typing'; typingEl.setAttribute('aria-label', 'BlueMind is typing'); typingEl.innerHTML = '<i></i><i></i><i></i>'; log.appendChild(typingEl); scrollDown(); }
+    if (!on && typingEl) { typingEl.remove(); typingEl = null; }
+  }
+  function applyState(state) {
+    if (!state) return;
+    showTyping(!!state.staff_typing);
+    if (state.typical_reply) setStatus('Typically replies within ' + state.typical_reply);
+    hasContact = !!state.has_contact;
+    var mine = log.querySelectorAll('.bubble.me[data-id]');
+    if (mine.length) {
+      var lastMineId = parseInt(mine[mine.length - 1].dataset.id, 10);
+      setReceipt(state.read_up_to >= lastMineId ? 'Read' : 'Delivered');
+    }
+    if (state.status === 'closed' && !log.querySelector('.bubble.system[data-closed]')) {
+      var s = bubble('system', 'This conversation was closed by our team. Send a message any time to start again.'); s.dataset.closed = '1';
+    }
+    if (state.status === 'open') { var c = log.querySelector('.bubble.system[data-closed]'); if (c) c.remove(); }
+  }
+  function addMessages(list) {
+    var added = 0;
+    list.forEach(function (m) {
+      if (m.id <= lastId) return;
+      lastId = m.id;
+      if (m.sender === 'visitor' && log.querySelector('.bubble.me[data-id="' + m.id + '"]')) return;
+      if (m.sender === 'system' && /closed by our team/.test(m.body)) return; // rendered from state instead
+      if (typingEl) { typingEl.remove(); typingEl = null; }
+      bubble(m.sender, m.body, { id: m.id, time: m.created_at });
+      if (m.sender === 'staff') added++;
+    });
+    if (added && !open) { unread += added; badge.textContent = String(unread); badge.hidden = false; }
+    if (added && open) markRead();
+    if (list.length) scrollDown();
+    return added;
+  }
+  function offline() {
+    if (log.querySelector('[data-offline]')) return;
+    var s = bubble('system', 'We cannot reach our team right now. Call ' + (cfg.phone || '(734) 252-5215') + ' or email ' + (cfg.email || 'info@bluemindmi.com') + '.'); s.dataset.offline = '1';
+  }
+  function api(path, opts) {
+    opts = opts || {};
+    return fetch(API + path, { method: opts.method || 'GET', mode: 'cors', credentials: 'omit', headers: opts.body ? { 'Content-Type': 'application/json' } : undefined, body: opts.body ? JSON.stringify(opts.body) : undefined })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (b) { if (!r.ok) { var e = new Error((b && typeof b.detail === 'string' && b.detail) || ('HTTP ' + r.status)); e.status = r.status; throw e; } return b; }); });
+  }
+  function poll() {
+    if (!token) return Promise.resolve();
+    return api('/messages?token=' + encodeURIComponent(token) + '&after=' + lastId)
+      .then(function (r) { addMessages(r.messages || []); applyState(r.state); var o = log.querySelector('[data-offline]'); if (o) o.remove(); })
+      .catch(function (e) { if (e.status === 404) forget(); });
+  }
+  function schedule() {
+    clearInterval(pollTimer);
+    if (!token) return;
+    pollTimer = setInterval(poll, open ? 3000 : 20000);
+  }
+  function markRead() {
+    if (!token || document.hidden) return;
+    unread = 0; badge.hidden = true;
+    api('/read', { method: 'POST', body: { token: token } }).catch(function () {});
+  }
+  function maybeContactCard() {
+    if (contactShown || hasContact || !open) return;
+    contactShown = true;
+    var card = document.createElement('div');
+    card.className = 'chat-contact';
+    card.innerHTML = '<div>If you step away, we can send the reply by email.</div><form><input type="email" placeholder="you@example.com" aria-label="Email for the reply" autocomplete="email"><button type="submit">Save</button></form><button type="button" class="dismiss">No thanks</button>';
+    log.appendChild(card); scrollDown();
+    card.querySelector('.dismiss').addEventListener('click', function () { card.remove(); });
+    card.querySelector('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = card.querySelector('input').value.trim(); if (!email) return;
+      api('/contact', { method: 'POST', body: { token: token, email: email } })
+        .then(function () { hasContact = true; card.innerHTML = '<div>Thanks. We will email you at <strong>' + esc(email) + '</strong> if you are not here when we reply.</div>'; })
+        .catch(function (err) { card.querySelector('div').textContent = err.message || 'That did not save. Try again.'; });
+    });
+  }
+  function send(text) {
+    text = (text || '').trim(); if (!text) return;
+    var pending = bubble('visitor', text); pending.dataset.pending = '1';
+    setReceipt('Sending…'); scrollDown();
+    input.value = ''; autosize(); sendBtn.disabled = true;
+    quick.innerHTML = '';
+    api('/messages', { method: 'POST', body: { token: token, body: text, page: location.pathname, website: '' } })
+      .then(function (r) {
+        token = r.token; try { localStorage.setItem(KEY, token); } catch (e) { /* ignore */ }
+        pending.dataset.id = r.message.id; delete pending.dataset.pending; lastId = Math.max(lastId, r.message.id);
+        applyState(r.state); setReceipt(r.state && r.state.read_up_to >= r.message.id ? 'Read' : 'Delivered');
+        schedule(); setTimeout(maybeContactCard, 1500);
+      })
+      .catch(function (err) { pending.remove(); if (lastReceipt) lastReceipt.remove(); input.value = text; autosize(); if (err.status === 429) { bubble('system', 'Please wait a moment before sending more messages.'); } else { offline(); } })
+      .then(function () { sendBtn.disabled = false; input.focus(); });
+  }
+  function autosize() { input.style.height = 'auto'; input.style.height = Math.min(140, input.scrollHeight) + 'px'; }
+  function renderQuick() {
+    quick.innerHTML = '';
+    if (lastId) return;
+    quickReplies.forEach(function (q) { var b = document.createElement('button'); b.type = 'button'; b.textContent = q; b.addEventListener('click', function () { send(q); }); quick.appendChild(b); });
+  }
+  function boot() {
+    log.innerHTML = ''; lastReceipt = null; typingEl = null; lastId = 0;
+    bubble('staff', welcome, {});
+    if (token) {
+      api('/messages?token=' + encodeURIComponent(token) + '&after=0')
+        .then(function (r) { addMessages(r.messages || []); applyState(r.state); renderQuick(); markRead(); })
+        .catch(function (e) { if (e.status === 404) forget(); renderQuick(); });
+    } else { renderQuick(); }
+  }
+  function openChat() {
+    open = true; root.setAttribute('data-open', 'true'); win.hidden = false; fab.setAttribute('aria-expanded', 'true');
+    boot(); schedule(); setTimeout(function () { input.focus(); scrollDown(); }, 60);
+  }
+  function closeChat() {
+    open = false; root.removeAttribute('data-open'); win.hidden = true; fab.setAttribute('aria-expanded', 'false'); schedule(); fab.focus();
+  }
+  fab.addEventListener('click', openChat);
+  closeBtn.addEventListener('click', closeChat);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) closeChat(); });
+  compose.addEventListener('submit', function (e) { e.preventDefault(); send(input.value); });
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input.value); } });
+  input.addEventListener('input', function () {
+    autosize();
+    if (!token) return;
+    var now = Date.now(); if (now - typingSentAt > 3000) { typingSentAt = now; api('/typing', { method: 'POST', body: { token: token } }).catch(function () {}); }
+  });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && open) { poll(); markRead(); } });
+  document.querySelectorAll('a[data-open-message]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); openChat(); }); });
+  // Returning visitor: fetch quietly and show a badge for unread replies.
+  if (token) {
+    api('/messages?token=' + encodeURIComponent(token) + '&after=0')
+      .then(function (r) {
+        var fresh = (r.messages || []).filter(function (m) { return m.sender === 'staff' && !m.read; }).length;
+        if (fresh) { unread = fresh; badge.textContent = String(fresh); badge.hidden = false; }
+        if (r.state && r.state.typical_reply) setStatus('Typically replies within ' + r.state.typical_reply);
+        schedule();
+      })
+      .catch(function (e) { if (e.status === 404) forget(); });
+  }
 })();

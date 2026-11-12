@@ -93,6 +93,8 @@ ICONS = {
     "lock": '<rect x="5" y="11" width="14" height="10" rx="2.2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/><circle cx="12" cy="16" r="1.3"/>',
     "id-check": '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.5-1.6 1.6-2.4 3-2.4s2.5.8 3 2.4"/><path d="m14 11 1.5 1.5L18.5 9.5"/><path d="M14 15h4.5"/>',
     "eye": '<path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/>',
+    "send": '<path d="M4 12 20 4l-4 16-4-7z"/><path d="m12 13 8-9"/>',
+    "check2": '<path d="m2 12 4 4L13 9"/><path d="m11 16 9-9"/>',
     "close": '<path d="M6 6l12 12M18 6 6 18"/>',
     "sun": '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
 }
@@ -268,29 +270,27 @@ NAV = [
 
 
 def message_widget() -> str:
-    """Floating "Message us" button + panel. Posts to the same endpoint as the
-    contact page, so messages land in the dashboard's Website Inbox."""
+    """Floating "Message us" chat window. A conversation with the team, not a
+    form: the welcome message is already there, the visitor just types."""
+    typical = REPLY["message"]
     return (
-        '<div class="msg" id="msg">'
-        '<button type="button" class="msg-fab" aria-expanded="false" aria-controls="msg-panel">'
-        f'{icon("chat")}<span>Message us</span></button>'
-        '<div class="msg-panel" id="msg-panel" role="dialog" aria-modal="false" aria-labelledby="msg-title" hidden>'
-        '<div class="msg-head"><div><h2 id="msg-title">Send us a message</h2>'
-        f'<p>Any question, any time. We typically reply within {REPLY["message"]}.</p></div>'
-        f'<button type="button" class="msg-close" aria-label="Close">{icon("close")}</button></div>'
-        '<form data-endpoint="message" data-success-title="Message sent" '
-        f'data-success-body="Thank you. We typically reply within {REPLY["message"]}. If you gave us an email address, a receipt with your reference number is on its way." novalidate>'
-        '<div class="fields" style="grid-template-columns:1fr">'
-        '<div><label for="m_name">Your name <span class="req" aria-hidden="true">*</span></label><input id="m_name" name="full_name" type="text" required maxlength="255" autocomplete="name"></div>'
-        '<div><label for="m_email">Email <span class="opt">(so we can reply)</span></label><input id="m_email" name="email" type="email" maxlength="255" autocomplete="email"></div>'
-        '<div><label for="m_phone">Phone <span class="opt">(if you prefer a call)</span></label><input id="m_phone" name="phone" type="tel" maxlength="40" autocomplete="tel" data-phone-format></div>'
-        '<div><label for="m_message">Message <span class="req" aria-hidden="true">*</span></label><textarea id="m_message" name="message" required maxlength="4000" rows="4"></textarea></div>'
-        '</div>'
-        '<div class="hp" aria-hidden="true"><label for="m_website">Leave this field empty</label><input id="m_website" name="website" type="text" tabindex="-1" autocomplete="off"></div>'
-        '<div class="form-actions"><button class="btn btn-primary" type="submit">Send message</button>'
-        f'<a class="small" href="{ORG["phone_href"]}">or call {ORG["phone"]}</a></div>'
-        '<div class="form-status" role="alert" aria-live="polite"></div>'
-        '</form></div></div>'
+        '<div class="chat" id="chat">'
+        '<button type="button" class="chat-fab" aria-expanded="false" aria-controls="chat-window">'
+        + icon("chat") + '<span class="chat-fab-label">Message us</span><span class="chat-badge" hidden></span></button>'
+        '<section class="chat-window" id="chat-window" role="dialog" aria-label="Chat with BlueMind Therapy" hidden>'
+        '<header class="chat-head">'
+        '<img src="assets/logo.png" alt="" width="40" height="40">'
+        '<div class="chat-who"><strong>BlueMind Therapy</strong><span class="chat-status" data-chat-status>Typically replies within ' + typical + '</span></div>'
+        '<button type="button" class="chat-close" aria-label="Close chat">' + icon("close") + '</button>'
+        '</header>'
+        '<div class="chat-log" data-chat-log role="log" aria-live="polite" aria-relevant="additions"></div>'
+        '<div class="chat-quick" data-chat-quick></div>'
+        '<form class="chat-compose" data-chat-compose>'
+        '<label for="chat-input" class="sr-only">Your message</label>'
+        '<textarea id="chat-input" rows="1" placeholder="Type a message…" maxlength="2000" enterkeyhint="send"></textarea>'
+        '<button type="submit" class="chat-send" aria-label="Send">' + icon("send") + '</button>'
+        '</form>'
+        '</section></div>'
     )
 
 
