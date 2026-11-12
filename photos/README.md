@@ -11,6 +11,7 @@ shows an illustrated panel in its place. Current files came from the owner on 20
 | `dearborn-sign.jpg` | About gallery | Road sign at 18800 Hubbard Drive |
 | `fort-gratiot.jpg` | Locations page, Fort Gratiot card | still the illustrated panel |
 | `reception.jpg` | Locations page, "What to expect" | Lobby with the logo |
+| `cameras.jpg` | Safety sections on home and locations | Camera monitor, feeds blurred for privacy |
 | `services.jpg` | Services page | Therapy room with the chalkboard |
 | `careers.jpg` | Home page, careers section | Therapy room with the magnet letters |
 

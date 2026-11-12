@@ -155,6 +155,12 @@ SAFETY = [
 
 
 def safety_block() -> str:
+    banner = (
+        '<figure class="safety-photo">'
+        + photo("cameras", "The camera wall at one of our centers: every room on screen, recorded around the clock (feeds blurred for privacy)", "wide")
+        + '<figcaption><strong>Every room, on camera, 24/7.</strong> This is the monitor at one of our centers. The feeds are blurred here for privacy. In the building, every room is recorded around the clock.</figcaption>'
+        '</figure>'
+    )
     cards = ""
     for name, badge, en, ar, es in SAFETY:
         badge_html = f'<span class="safety-badge">{badge}</span>' if badge else ""
@@ -166,7 +172,7 @@ def safety_block() -> str:
             f'<p class="safety-l" lang="es">{es}</p>'
             '</li>'
         )
-    return f'<ul class="safety clean">{cards}</ul>'
+    return banner + f'<ul class="safety clean">{cards}</ul>'
 
 
 def gallery(spec: str, label: str = "Photos of our centers") -> str:
