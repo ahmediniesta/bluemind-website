@@ -27,8 +27,7 @@ automatically and show an illustrated panel until then.
 | Careers application | `POST /api/website-portal/applications` | Dashboard → Website Inbox → Applicants |
 | Contact message | `POST /api/website-portal/messages` | Dashboard → Website Inbox → Messages |
 
-The dashboard must allow this site's origin: `CORS_ORIGINS` on Railway needs
-`https://bluemindmi.com,https://www.bluemindmi.com` added.
+The dashboard already allows this site's origin in code (`utils/public_cors.py`): bluemindmi.com and www.bluemindmi.com may call only `/api/referral-portal/*` and `/api/website-portal/*`, never with credentials. No Railway `CORS_ORIGINS` change is needed. If the site ever moves to another domain, change `PUBLIC_SITE_URL` on Railway.
 
 ## Go live with no clicking: GoDaddy API
 
@@ -96,5 +95,4 @@ here means GoDaddy's regular **Web Hosting** (Linux, cPanel) plan.
 Later updates: run `tools/package.sh` and upload again, or give Claude an FTP account from
 cPanel → FTP Accounts and `tools/deploy_godaddy.sh` pushes the site in one command.
 
-Either way, the dashboard on Railway needs `CORS_ORIGINS` to include
-`https://bluemindmi.com,https://www.bluemindmi.com` before the forms and the chat can post.
+Either way, nothing changes on Railway for CORS: the dashboard allows this domain in code (see above). Set `WEBSITE_NOTIFICATION_EMAIL` on Railway (for example hr@bluemindmi.com) if staff alerts about applications and messages should go somewhere other than the referral/admin address.
