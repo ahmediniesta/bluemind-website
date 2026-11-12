@@ -7,9 +7,12 @@
     python3 tools/godaddy_dns.py --backup FILE     # save every record to FILE (json)
     python3 tools/godaddy_dns.py --apply           # A @ -> GitHub Pages, CNAME www -> ahmediniesta.github.io
     python3 tools/godaddy_dns.py --restore FILE    # put the A @ and CNAME www records from FILE back
+    python3 tools/godaddy_dns.py --add-txt NAME 'VALUE'   # add one TXT record (DKIM, DMARC, verification)
+    python3 tools/godaddy_dns.py --dmarc                   # add the monitoring DMARC record (p=none) for the domain
 
-Only the A records at @ and the CNAME at www are ever written. MX, TXT, SRV and every
-other record (Google Workspace mail, verification strings) are never touched.
+--apply and --restore write only the A records at @ and the CNAME at www. --add-txt and
+--dmarc ADD one TXT record and never replace or delete anything. MX, SPF and existing
+TXT records are never touched by any mode.
 A Personal Access Token is made in the GoDaddy developer dashboard (Custom permissions,
 Domains & DNS only, 7 days). It is sent as "Authorization: Bearer"; the deprecated
 key:secret pair is sent as "sso-key".
@@ -21,6 +24,9 @@ API = "https://api.godaddy.com/v1/domains/" + DOMAIN + "/records"
 GITHUB_A = ["185.199.108.153", "185.199.109.153", "185.199.110.153", "185.199.111.153"]
 GITHUB_CNAME = "ahmediniesta.github.io"
 TTL = 600
+# Monitoring only (p=none): mailbox providers report who sends as @bluemindmi.com, nothing is
+# rejected yet. Move to p=quarantine once DKIM is on and the reports look clean.
+DMARC_MONITOR = "v=DMARC1; p=none; rua=mailto:dmarc@bluemindmi.com; fo=1"
 
 
 def auth() -> str:
@@ -59,6 +65,8 @@ def main():
     g.add_argument("--backup", metavar="FILE")
     g.add_argument("--apply", action="store_true")
     g.add_argument("--restore", metavar="FILE")
+    g.add_argument("--add-txt", nargs=2, metavar=("NAME", "VALUE"))
+    g.add_argument("--dmarc", action="store_true")
     a = ap.parse_args()
 
     if a.show:
@@ -74,6 +82,16 @@ def main():
         call("PUT", "/A/@", [{"data": ip, "ttl": TTL} for ip in GITHUB_A])
         call("PUT", "/CNAME/www", [{"data": GITHUB_CNAME, "ttl": TTL}])
         print("\nafter:"); show(call("GET")); return
+    if a.add_txt or a.dmarc:
+        name, value = a.add_txt if a.add_txt else ("_dmarc", DMARC_MONITOR)
+        existing = [r for r in call("GET") if r["type"] == "TXT" and r["name"] == name]
+        if any(r["data"] == value for r in existing):
+            print(f"TXT {name} already holds that value; nothing to do"); return
+        if name == "_dmarc" and existing:
+            sys.exit("a _dmarc record already exists; change it deliberately, not by adding a second one")
+        # PATCH appends records; it never replaces the existing ones at other names.
+        call("PATCH", "", [{"type": "TXT", "name": name, "data": value, "ttl": TTL}])
+        print("added:"); show([r for r in call("GET") if r["type"] == "TXT"]); return
     if a.restore:
         with open(a.restore) as f:
             recs = json.load(f)

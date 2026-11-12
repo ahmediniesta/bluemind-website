@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://bluemind-dashboard-production.up.railway.app; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Check your status · BlueMind Therapy</title>
 <meta name="description" content="Check the status of a referral, job application or message you sent to BlueMind Therapy using your reference number.">
 <link rel="canonical" href="https://bluemindmi.com/status">
@@ -60,52 +62,7 @@
     </aside>
   </div>
 </section>
-<script>
-(function () {
-  var cfg = window.BLUEMIND || {};
-  var STEPS = {
-    referral: ['new', 'contacted', 'intake_scheduled', 'accepted'],
-    application: ['new', 'contacted', 'interviewing', 'offered', 'hired'],
-    message: ['new', 'replied', 'closed']
-  };
-  var NAMES = {
-    new: 'Received', contacted: 'Contacted', intake_scheduled: 'Intake scheduled', accepted: 'Accepted for services',
-    interviewing: 'Interviewing', offered: 'Offer made', hired: 'Hired', replied: 'Replied', closed: 'Closed', declined: 'Not proceeding'
-  };
-  var KIND = { referral: 'Referral', application: 'Job application', message: 'Message' };
-  var form = document.getElementById('statusForm'), out = document.getElementById('statusResult'), box = form.querySelector('.form-status');
-  var q = new URLSearchParams(location.search).get('ref');
-  if (q) document.getElementById('s_ref').value = q.toUpperCase();
-  function fmt(d) { var p = d.split('-'); return p.length === 3 ? new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : d; }
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    if (!form.reportValidity()) return;
-    box.className = 'form-status'; out.classList.remove('show');
-    var btn = form.querySelector('button'); btn.disabled = true; btn.textContent = 'Checking…';
-    fetch((cfg.apiBase || '') + '/api/website-portal/status', { method: 'POST', mode: 'cors', credentials: 'omit', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ reference: form.reference.value.trim(), email: form.email.value.trim(), website: form.website.value }) })
-      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (b) { if (!r.ok) throw new Error((b && typeof b.detail === 'string' && b.detail) || 'We could not check that right now. Please call ' + (cfg.phone || '(734) 252-5215') + '.'); return b; }); })
-      .then(function (b) {
-        document.getElementById('r_kind').textContent = KIND[b.kind] || 'Submission';
-        document.getElementById('r_label').textContent = b.label;
-        var pill = document.getElementById('r_pill');
-        pill.className = 'status-pill ' + (b.status === 'declined' || b.status === 'closed' ? 'closed' : (b.status === 'new' ? 'pending' : ''));
-        document.getElementById('r_ref').textContent = b.reference;
-        document.getElementById('r_next').textContent = b.next_step;
-        document.getElementById('r_sub').textContent = fmt(b.submitted_on);
-        document.getElementById('r_upd').textContent = fmt(b.updated_on);
-        var tl = document.getElementById('r_timeline'); tl.innerHTML = '';
-        var steps = STEPS[b.kind] || [];
-        var at = steps.indexOf(b.status);
-        if (b.status === 'declined') { steps = steps.slice(0, 1).concat(['declined']); at = 1; }
-        steps.forEach(function (s, i) { var li = document.createElement('li'); li.textContent = NAMES[s] || s; if (i < at) li.className = 'done'; if (i === at) li.className = 'current'; tl.appendChild(li); });
-        out.classList.add('show'); out.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      })
-      .catch(function (err) { box.className = 'form-status err'; box.textContent = err.message; })
-      .then(function () { btn.disabled = false; btn.textContent = 'Check status'; });
-  });
-})();
-</script>
+<script src="assets/status.js" defer></script>
 <style>@media (max-width: 900px) { #main .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>
 </main><footer class="site-footer"><div class="wrap"><div class="cols"><div><a class="brand" href="/"><img src="assets/logo.png" alt="" width="48" height="48"><span>BlueMind Therapy<small>Autism therapy services</small></span></a><p style="margin-top:1rem">One-on-one ABA therapy for children and teens with autism, at our three Michigan centers, at home, at school and in the community.</p><p><a class="social" href="https://www.instagram.com/bluemindtherapymi/" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-instagram"/></svg> Instagram</a></p></div><div><h4>Our centers</h4><ul><li><strong>Ypsilanti</strong><br><address>1122 Walnut Street<br>Ypsilanti, MI 48198</address><a href="tel:+17342525215">(734) 252-5215</a></li><li><strong>Dearborn</strong><br><address>18800 Hubbard Drive<br>Dearborn, MI 48126</address><a href="tel:+13134360319">(313) 436-0319</a></li><li><strong>Fort Gratiot</strong><br><address>4435 24th Avenue<br>Fort Gratiot, MI 48059</address><a href="tel:+18104799375">(810) 479-9375</a></li></ul></div><div><h4>Families</h4><ul><li><a href="/services">Services</a></li><li><a href="/#how-it-works">How it works</a></li><li><a href="/#faq">Questions parents ask</a></li><li><a href="/refer">Refer a child</a></li><li><a href="/status">Check your status</a></li><li><a href="/contact">Contact us</a></li></ul></div><div><h4>Company</h4><ul><li><a href="/about">About BlueMind</a></li><li><a href="/careers">Careers</a></li><li><a href="/locations">Locations</a></li><li><a href="/privacy">Privacy notice</a></li><li><a href="https://bluemind-dashboard-production.up.railway.app/login" rel="nofollow">Staff sign in</a></li></ul></div></div><div class="legal"><span>© <span data-year>2026</span> BlueMind Therapy LLC. All rights reserved.</span><span>Serving Washtenaw, Wayne, St. Clair and Monroe counties, Michigan</span></div></div></footer><div class="chat" id="chat"><button type="button" class="chat-fab" aria-expanded="false" aria-controls="chat-window"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-chat"/></svg><span class="chat-fab-label">Message us</span><span class="chat-badge" hidden></span></button><section class="chat-window" id="chat-window" role="dialog" aria-label="Chat with BlueMind Therapy" hidden><header class="chat-head"><img src="assets/logo.png" alt="" width="40" height="40"><div class="chat-who"><strong>BlueMind Therapy</strong><span class="chat-status" data-chat-status>Typically replies within one business day</span></div><button type="button" class="chat-close" aria-label="Close chat"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-close"/></svg></button></header><div class="chat-log" data-chat-log role="log" aria-live="polite" aria-relevant="additions"></div><div class="chat-quick" data-chat-quick></div><form class="chat-compose" data-chat-compose><label for="chat-input" class="sr-only">Your message</label><textarea id="chat-input" rows="1" placeholder="Type a message…" maxlength="2000" enterkeyhint="send"></textarea><button type="submit" class="chat-send" aria-label="Send"><svg class="ic" aria-hidden="true" focusable="false"><use href="#i-send"/></svg></button></form></section></div>
 <script src="assets/config.js"></script>

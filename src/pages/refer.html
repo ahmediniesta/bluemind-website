@@ -134,13 +134,5 @@ sticky: false
     </aside>
   </div>
 </section>
-<script>
-  (function () {
-    var d = document.getElementById('date_of_referral');
-    if (d && !d.value) {
-      var now = new Date();
-      d.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-    }
-  })();
-</script>
+<script src="assets/refer.js" defer></script>
 <style>@media (max-width: 900px) { #main .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>

@@ -1,5 +1,8 @@
 /* BlueMind Therapy — site behaviour: mobile nav, photo slots, and the three forms. */
 (function () {
+  // frame-bust: never let another site wrap these forms in a frame (phishing overlay).
+  try { if (window.top !== window.self) { window.top.location = window.self.location; } } catch (e) { document.documentElement.style.display = 'none'; }
+
   'use strict';
 
   // ── Mobile navigation ─────────────────────────────────────────────────

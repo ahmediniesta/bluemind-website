@@ -20,6 +20,9 @@ SITE = "https://bluemindmi.com"
 
 REPLY = {"referral": "two business days", "application": "three business days", "message": "one business day"}
 
+# The only server the site talks to (forms, chat, status). It is also the CSP connect-src.
+API_ORIGIN = "https://bluemind-dashboard-production.up.railway.app"
+
 ORG = {
     "name": "BlueMind Therapy",
     "legal": "BlueMind Therapy LLC",
@@ -29,7 +32,7 @@ ORG = {
     "email": "info@bluemindmi.com",
     "careers_email": "hr@bluemindmi.com",
     "instagram": "https://www.instagram.com/bluemindtherapymi/",
-    "dashboard": "https://bluemind-dashboard-production.up.railway.app/login",
+    "dashboard": API_ORIGIN + "/login",
 }
 
 CENTERS = [
@@ -355,6 +358,8 @@ def head(meta: dict, slug: str) -> str:
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' {API_ORIGIN}; form-action 'self'; base-uri 'self'; object-src 'none'; frame-src 'none'; upgrade-insecure-requests">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>{title}</title>
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canonical}">
