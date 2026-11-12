@@ -84,6 +84,14 @@
       card.querySelector('.ref').textContent = 'Your reference number is ' + result.reference + '.';
       card.querySelector('.small').textContent = 'Keep it handy if you call us about this submission.';
     }
+    if (form.dataset.successAgain) {
+      var again = document.createElement('button');
+      again.type = 'button'; again.className = 'btn btn-secondary'; again.style.marginTop = '1rem';
+      again.textContent = form.dataset.successAgain;
+      again.addEventListener('click', function () { window.location.reload(); });
+      card.appendChild(again);
+    }
+    form.dispatchEvent(new CustomEvent('bluemind:sent'));
     var holder = form.closest('.form-card') || form;
     holder.replaceWith(card);
     card.scrollIntoView({ block: 'start', behavior: 'smooth' });
@@ -95,6 +103,15 @@
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       if (!form.reportValidity()) return;
+      var missing = Array.prototype.slice.call(form.querySelectorAll('[data-require-one]')).filter(function (g) {
+        return !g.querySelector('input[name="' + g.dataset.requireOne + '"]:checked');
+      });
+      if (missing.length) {
+        var m = missing[0].querySelector('[data-require-error]');
+        if (m) { m.textContent = missing[0].dataset.requireMessage || 'Please choose at least one.'; m.classList.add('show'); }
+        var f = missing[0].querySelector('input'); if (f) f.focus();
+        return;
+      }
 
       var file = form.querySelector('input[type="file"]');
       if (file && file.files && file.files[0] && file.files[0].size > 5 * 1024 * 1024) {
@@ -148,6 +165,58 @@
     var sync = function () { target.hidden = !(ctrl.value === 'Yes' || ctrl.value === 'Other'); };
     ctrl.addEventListener('change', sync);
     sync();
+  });
+  // Radio-driven: data-shows-when="group=Value" shows the element while that radio is checked.
+  document.querySelectorAll('[data-shows-when]').forEach(function (el) {
+    var parts = el.dataset.showsWhen.split('='), group = parts[0], want = parts[1];
+    var form = el.closest('form'); if (!form) return;
+    var sync = function () { var c = form.querySelector('input[name="' + group + '"]:checked'); el.hidden = !(c && c.value === want); };
+    form.querySelectorAll('input[name="' + group + '"]').forEach(function (r) { r.addEventListener('change', sync); });
+    sync();
+  });
+
+  // ── Phone formatting: (555) 123-4567 as you type ──────────────────────
+  document.querySelectorAll('input[data-phone-format]').forEach(function (input) {
+    input.addEventListener('input', function () {
+      var digits = this.value.replace(/\D/g, '').substring(0, 10), out = '';
+      if (digits.length > 0) out = '(' + digits.substring(0, 3);
+      if (digits.length >= 3) out += ') ';
+      if (digits.length > 3) out += digits.substring(3, 6);
+      if (digits.length >= 6) out += '-' + digits.substring(6, 10);
+      this.value = out;
+    });
+  });
+
+  // ── Drafts: a long form survives a closed tab (this device only) ──────
+  document.querySelectorAll('form[data-autosave]').forEach(function (form) {
+    var key = form.dataset.autosave;
+    var fields = function () { return form.querySelectorAll('input:not([type="file"]):not([type="submit"]), select, textarea'); };
+    var save = function () {
+      try {
+        var data = {};
+        fields().forEach(function (el) {
+          if (!el.name || el.name === 'website') return;
+          if (el.type === 'radio') { if (el.checked) data[el.name] = el.value; return; }
+          if (el.type === 'checkbox') { data[el.name] = (data[el.name] || []).concat(el.checked ? [el.value] : []); return; }
+          data[el.name] = el.value;
+        });
+        localStorage.setItem(key, JSON.stringify(data));
+      } catch (e) { /* storage unavailable: fine */ }
+    };
+    try {
+      var saved = JSON.parse(localStorage.getItem(key) || 'null');
+      if (saved) {
+        fields().forEach(function (el) {
+          if (!el.name || !(el.name in saved)) return;
+          if (el.type === 'radio') { el.checked = saved[el.name] === el.value; if (el.checked) el.dispatchEvent(new Event('change', { bubbles: true })); return; }
+          if (el.type === 'checkbox') { el.checked = (saved[el.name] || []).indexOf(el.value) !== -1; return; }
+          if (saved[el.name]) el.value = saved[el.name];
+        });
+      }
+    } catch (e) { /* ignore a bad draft */ }
+    form.addEventListener('input', save);
+    form.addEventListener('change', save);
+    form.addEventListener('bluemind:sent', function () { try { localStorage.removeItem(key); } catch (e) { /* ignore */ } });
   });
 
   // ── Footer year ───────────────────────────────────────────────────────
@@ -234,7 +303,7 @@
     steps.forEach(function (fs, i) {
       var li = document.createElement('li');
       var legend = fs.querySelector('legend');
-      li.textContent = (i + 1) + '. ' + (legend ? legend.textContent.trim() : 'Step ' + (i + 1));
+      li.textContent = (i + 1) + '. ' + (fs.dataset.stepLabel || (legend ? legend.textContent.trim() : 'Step ' + (i + 1)));
       list.appendChild(li);
     });
     form.insertBefore(stepper, form.firstChild);
@@ -271,6 +340,13 @@
       for (var i = 0; i < controls.length; i++) {
         if (controls[i].closest('[hidden]')) continue;
         if (!controls[i].checkValidity()) { controls[i].reportValidity(); return false; }
+      }
+      var groups = fs.querySelectorAll('[data-require-one]');
+      for (var g = 0; g < groups.length; g++) {
+        var name = groups[g].dataset.requireOne, msg = groups[g].querySelector('[data-require-error]');
+        var any = groups[g].querySelector('input[name="' + name + '"]:checked');
+        if (msg) { msg.textContent = any ? '' : (groups[g].dataset.requireMessage || 'Please choose at least one.'); msg.classList.toggle('show', !any); }
+        if (!any) { var first = groups[g].querySelector('input[name="' + name + '"]'); if (first) first.focus(); return false; }
       }
       return true;
     }

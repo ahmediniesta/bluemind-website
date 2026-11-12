@@ -1,97 +1,113 @@
 <!--
 title: Refer a child
-description: Refer a child to BlueMind Therapy for ABA services. For parents, case managers, pediatricians and schools. Only the child's name is required to start.
+description: BlueMind Therapy Referral for Services. The referral form used by county case managers, physicians, schools and families to refer a child for ABA services.
 nav: refer
 sticky: false
 -->
 <section class="page-intro"><div class="wrap">
   <p class="eyebrow">Referral form</p>
-  <h1>Refer a child for ABA services</h1>
-  <p class="lede">For parents, county case managers, physicians and schools. Only the child's name is required to begin; send what you have and our intake team will follow up for the rest. You will receive a reference number as soon as you submit.</p>
+  <h1>BlueMind Therapy Referral for Services</h1>
+  <p class="lede">Please fill out all required fields to refer a client for services. This is the same referral form our county partners use. You will receive a reference number as soon as you submit, and your progress is saved on this device if you need to come back.</p>
 </div></section>
 
 <section class="band band-tight">
   <div class="wrap" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2rem;align-items:start">
     <div class="form-card">
-      <form data-stepper data-endpoint="referral" data-success-title="Referral received" data-success-body="Thank you. A receipt is on its way to the email you gave us, and you will hear from our intake team within two business days. You will get an email each time the referral moves forward." novalidate>
-        <fieldset>
-          <legend>About the child</legend>
+      <form data-stepper data-endpoint="referral" data-autosave="bluemind_referral_draft" data-success-title="Success! Your referral has been submitted." data-success-body="Thank you. A receipt is on its way to the email you gave us, and our intake team will contact the parent or guardian within two business days. You will get an email each time the referral moves forward." data-success-again="Submit another referral" novalidate>
+
+        <fieldset data-step-label="Client Info">
+          <legend>Client Information</legend>
           <div class="fields">
-            <div><label for="client_name">Child's full name <span class="req" aria-hidden="true">*</span></label><input id="client_name" name="client_name" type="text" required autocomplete="off" maxlength="255"></div>
-            <div><label for="date_of_birth">Date of birth</label><input id="date_of_birth" name="date_of_birth" type="date"></div>
-            <div><label for="gender">Gender</label><select id="gender" name="gender"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
-            <div><label for="primary_language">Primary language at home</label><input id="primary_language" name="primary_language" type="text" list="languages" maxlength="100"><datalist id="languages"><option value="English"><option value="Arabic"><option value="Spanish"><option value="French"><option value="Bengali"><option value="Urdu"><option value="Other"></datalist></div>
-            <div><label for="case_number">Medicaid ID or case number <span class="opt">(if known)</span></label><input id="case_number" name="case_number" type="text" maxlength="100" autocomplete="off"></div>
+            <div><label for="client_name">Client's Name <span class="req" aria-hidden="true">*</span></label><input id="client_name" name="client_name" type="text" required maxlength="255" autocomplete="off"></div>
+            <div><label for="case_number">Case # <span class="req" aria-hidden="true">*</span></label><input id="case_number" name="case_number" type="text" required maxlength="100" autocomplete="off"></div>
+            <div><label for="date_of_birth">Date of Birth <span class="req" aria-hidden="true">*</span></label><input id="date_of_birth" name="date_of_birth" type="date" required></div>
+            <div><span class="label" id="gender-label">Gender <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="gender-label">
+                <label><input type="radio" name="gender" value="Male" required> Male</label>
+                <label><input type="radio" name="gender" value="Female"> Female</label>
+                <label><input type="radio" name="gender" value="Other"> Other</label>
+              </div></div>
+            <div><label for="guardian_name">Guardian's Name <span class="req" aria-hidden="true">*</span></label><input id="guardian_name" name="guardian_name" type="text" required maxlength="255"></div>
+            <div><label for="contact_number">Contact Number <span class="req" aria-hidden="true">*</span></label><input id="contact_number" name="contact_number" type="tel" required maxlength="40" placeholder="e.g. (555) 123-4567" data-phone-format></div>
+            <div class="full"><label for="guardian_address">Guardian's Address <span class="req" aria-hidden="true">*</span></label><input id="guardian_address" name="guardian_address" type="text" required maxlength="1000" placeholder="Street, city, state, ZIP"></div>
+            <div><label for="email">Email <span class="req" aria-hidden="true">*</span></label><input id="email" name="email" type="email" required maxlength="255"></div>
+            <div><label for="primary_language">Primary Language <span class="req" aria-hidden="true">*</span></label><input id="primary_language" name="primary_language" type="text" required list="languageList" maxlength="100" autocomplete="off"><datalist id="languageList"><option value="English"><option value="Spanish"><option value="Arabic"><option value="French"><option value="Chinese"><option value="Hindi"><option value="Russian"><option value="Other"></datalist></div>
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>Parent or guardian</legend>
+        <fieldset data-step-label="Insurance">
+          <legend>Insurance Information</legend>
           <div class="fields">
-            <div><label for="guardian_name">Parent or guardian's name</label><input id="guardian_name" name="guardian_name" type="text" maxlength="255"></div>
-            <div><label for="contact_number">Best phone number</label><input id="contact_number" name="contact_number" type="tel" maxlength="40" placeholder="(555) 555-5555"></div>
-            <div><label for="email">Email</label><input id="email" name="email" type="email" maxlength="255"></div>
-            <div><label for="guardian_address">Home address</label><input id="guardian_address" name="guardian_address" type="text" maxlength="1000" placeholder="Street, city, ZIP"></div>
+            <div><label for="primary_insurance">Primary Insurance <span class="req" aria-hidden="true">*</span></label><input id="primary_insurance" name="primary_insurance" type="text" required maxlength="255"></div>
+            <div><label for="primary_insurance_id">Insurance ID <span class="req" aria-hidden="true">*</span></label><input id="primary_insurance_id" name="primary_insurance_id" type="text" required maxlength="100" autocomplete="off"></div>
+            <div><label for="secondary_insurance">Secondary Insurance <span class="opt">(if any)</span></label><input id="secondary_insurance" name="secondary_insurance" type="text" maxlength="255"></div>
+            <div><label for="secondary_insurance_id">Insurance ID</label><input id="secondary_insurance_id" name="secondary_insurance_id" type="text" maxlength="100" autocomplete="off"></div>
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>Insurance</legend>
-          <p class="legend-note">Medicaid through your county community mental health program, or another plan.</p>
+        <fieldset data-step-label="Referral">
+          <legend>Referral Information</legend>
           <div class="fields">
-            <div><label for="primary_insurance">Primary insurance</label><input id="primary_insurance" name="primary_insurance" type="text" maxlength="255" placeholder="e.g. Medicaid (Washtenaw CMH)"></div>
-            <div><label for="primary_insurance_id">Primary insurance ID</label><input id="primary_insurance_id" name="primary_insurance_id" type="text" maxlength="100" autocomplete="off"></div>
-            <div><label for="secondary_insurance">Secondary insurance <span class="opt">(if any)</span></label><input id="secondary_insurance" name="secondary_insurance" type="text" maxlength="255"></div>
-            <div><label for="secondary_insurance_id">Secondary insurance ID</label><input id="secondary_insurance_id" name="secondary_insurance_id" type="text" maxlength="100" autocomplete="off"></div>
+            <div><label for="referred_by">Referred By <span class="req" aria-hidden="true">*</span></label><input id="referred_by" name="referred_by" type="text" required maxlength="255"></div>
+            <div><label for="date_of_referral">Date of Referral <span class="req" aria-hidden="true">*</span></label><input id="date_of_referral" name="date_of_referral" type="date" required></div>
+            <div><label for="case_manager_phone">Case Manager Phone</label><input id="case_manager_phone" name="case_manager_phone" type="tel" maxlength="40" placeholder="e.g. (555) 123-4567" data-phone-format></div>
+            <div><label for="case_manager_email">Case Manager Email</label><input id="case_manager_email" name="case_manager_email" type="email" maxlength="255" placeholder="e.g. manager@example.com"></div>
+            <div class="full"><span class="label" id="center-label">Preferred Center Location <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="center-label">
+                <label><input type="radio" name="preferred_center" value="Dearborn" required> Dearborn</label>
+                <label><input type="radio" name="preferred_center" value="Ypsilanti"> Ypsilanti</label>
+                <label><input type="radio" name="preferred_center" value="Fort Gratiot"> Fort Gratiot</label>
+              </div></div>
           </div>
         </fieldset>
 
-        <fieldset>
-          <legend>Services requested</legend>
+        <fieldset data-step-label="Services">
+          <legend>Requested Services</legend>
           <div class="fields">
-            <div class="full"><span class="label">Which services?</span>
-              <div class="choices">
-                <label><input type="checkbox" name="requested_services" value="ABA Therapy" data-multi checked> ABA Therapy</label>
-                <label><input type="checkbox" name="requested_services" value="Assessment" data-multi> Assessment</label>
-                <label><input type="checkbox" name="requested_services" value="Parent Training" data-multi> Parent Training</label>
+            <div class="full" data-require-one="requested_services" data-require-message="Please select at least one service"><span class="label" id="services-label">Check all that apply <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="group" aria-labelledby="services-label">
+                <label><input type="checkbox" name="requested_services" value="ABA Therapy" data-multi> Applied Behavior Analysis (ABA) Therapy</label>
                 <label><input type="checkbox" name="requested_services" value="Speech Therapy" data-multi> Speech Therapy</label>
                 <label><input type="checkbox" name="requested_services" value="Occupational Therapy" data-multi> Occupational Therapy</label>
-                <label><input type="checkbox" name="requested_services" value="Other" data-multi> Other</label>
+                <label><input type="checkbox" name="requested_services" value="Other" data-multi> Other (please specify)</label>
               </div>
+              <input id="other_service" name="other_service" type="text" maxlength="255" placeholder="If 'Other' selected, specify here" aria-label="Other service" style="margin-top:0.6rem">
+              <p class="step-error" data-require-error></p>
             </div>
-            <div><label for="other_service">Other service <span class="opt">(if selected)</span></label><input id="other_service" name="other_service" type="text" maxlength="255"></div>
-            <div><label for="service_setting">Preferred setting</label><select id="service_setting" name="service_setting"><option value="">No preference</option><option>Center</option><option>In-home</option><option>School</option><option>Community</option><option>Telehealth</option></select></div>
-            <div><label for="preferred_center">Preferred center</label><select id="preferred_center" name="preferred_center"><option value="">No preference</option><option value="Ypsilanti">Ypsilanti (Washtenaw County)</option><option value="Dearborn">Dearborn (Wayne County)</option><option value="Saint Clair">Fort Gratiot (St. Clair County)</option></select></div>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>Background</legend>
-          <div class="fields">
-            <div><label for="has_autism_dx">Has an autism diagnosis?</label><select id="has_autism_dx" name="has_autism_dx" data-shows="dx_provider_wrap"><option value="">Select</option><option>Yes</option><option>No</option><option>Unknown</option></select></div>
-            <div id="dx_provider_wrap"><label for="dx_provider">Who made the diagnosis?</label><input id="dx_provider" name="dx_provider" type="text" maxlength="255" placeholder="Provider or clinic"></div>
-            <div><label for="had_aba_before">Had ABA therapy before?</label><select id="had_aba_before" name="had_aba_before" data-shows="agency_wrap"><option value="">Select</option><option>Yes</option><option>No</option><option>Unknown</option></select></div>
-            <div id="agency_wrap"><label for="agency_name">Previous agency</label><input id="agency_name" name="agency_name" type="text" maxlength="255"></div>
-            <div><label for="interpreter_needed">Interpreter needed?</label><select id="interpreter_needed" name="interpreter_needed" data-shows="interp_wrap"><option value="">Select</option><option>Yes</option><option>No</option></select></div>
-            <div id="interp_wrap"><label for="interpreter_language">Interpreter language</label><input id="interpreter_language" name="interpreter_language" type="text" maxlength="100"></div>
-            <div class="full"><label for="current_concerns">Current concerns and goals</label><textarea id="current_concerns" name="current_concerns" maxlength="4000" placeholder="What would you most like to see change? Communication, behavior, daily routines, school, social skills…"></textarea></div>
-          </div>
-        </fieldset>
-
-        <fieldset>
-          <legend>About you</legend>
-          <p class="legend-note">So we can confirm receipt and keep you updated.</p>
-          <div class="fields">
-            <div><label for="referred_by">Your name and organization</label><input id="referred_by" name="referred_by" type="text" maxlength="255" placeholder="e.g. Jane Smith, Washtenaw CMH, or Parent"></div>
-            <div><label for="date_of_referral">Date of referral</label><input id="date_of_referral" name="date_of_referral" type="date"></div>
-            <div><label for="case_manager_email">Your email</label><input id="case_manager_email" name="case_manager_email" type="email" maxlength="255"></div>
-            <div><label for="case_manager_phone">Your phone</label><input id="case_manager_phone" name="case_manager_phone" type="tel" maxlength="40"></div>
+            <div class="full"><span class="label" id="setting-label">Service Setting <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="setting-label">
+                <label><input type="radio" name="service_setting" value="Home" required> Home</label>
+                <label><input type="radio" name="service_setting" value="Center"> Center</label>
+                <label><input type="radio" name="service_setting" value="Both"> Both</label>
+              </div></div>
+            <div class="full"><span class="label" id="aba-label">Has the client received ABA services previously? <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="aba-label">
+                <label><input type="radio" name="had_aba_before" value="Yes" required> Yes</label>
+                <label><input type="radio" name="had_aba_before" value="No"> No</label>
+              </div>
+              <div data-shows-when="had_aba_before=Yes" hidden style="margin-top:0.6rem"><input id="agency_name" name="agency_name" type="text" maxlength="255" placeholder="Agency Name" aria-label="Agency name"></div>
+            </div>
+            <div class="full"><span class="label" id="interp-label">Interpreter Needed? <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="interp-label">
+                <label><input type="radio" name="interpreter_needed" value="Yes" required> Yes</label>
+                <label><input type="radio" name="interpreter_needed" value="No"> No</label>
+              </div>
+              <div data-shows-when="interpreter_needed=Yes" hidden style="margin-top:0.6rem"><input id="interpreter_language" name="interpreter_language" type="text" maxlength="100" placeholder="(Arabic, Spanish, etc.)" aria-label="Interpreter language"></div>
+            </div>
+            <div class="full"><span class="label" id="dx-label">Does the client have an official Autism Diagnosis (ASD/F84.0)? <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="dx-label">
+                <label><input type="radio" name="has_autism_dx" value="Yes" required> Yes</label>
+                <label><input type="radio" name="has_autism_dx" value="No"> No</label>
+              </div>
+              <div data-shows-when="has_autism_dx=Yes" hidden style="margin-top:0.6rem"><input id="dx_provider" name="dx_provider" type="text" maxlength="255" placeholder="(Provider & date diagnosed)" aria-label="Diagnosing provider and date"></div>
+            </div>
+            <div class="full"><label for="current_concerns">Current Behaviors / Concerns <span class="req" aria-hidden="true">*</span></label><textarea id="current_concerns" name="current_concerns" rows="3" required maxlength="4000"></textarea></div>
           </div>
         </fieldset>
 
         <div class="hp" aria-hidden="true"><label for="website">Leave this field empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
         <div class="form-actions">
-          <button class="btn btn-primary btn-lg" type="submit">Submit referral</button>
+          <button class="btn btn-primary btn-lg" type="submit">Submit Referral</button>
           <span class="small">This information is confidential and used only to process the referral.</span>
         </div>
         <div class="form-status" role="alert" aria-live="polite"></div>
@@ -103,7 +119,7 @@ sticky: false
         <h3>What happens next</h3>
         <ol style="padding-left:1.2rem;margin:0;color:var(--ink-2);display:grid;gap:0.5rem">
           <li>You get a reference number right away and an email receipt.</li>
-          <li>Our intake team calls the parent or guardian within {{reply:referral}}.</li>
+          <li>Our intake team calls the parent or guardian within two business days.</li>
           <li>We confirm the diagnosis and insurance, and request authorization from the county.</li>
           <li>A BCBA schedules the assessment and the plan takes shape.</li>
         </ol>
