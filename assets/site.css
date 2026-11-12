@@ -433,3 +433,23 @@ a:hover > .ic:last-child, .btn:hover > .ic:last-child { transform: translateX(4p
 
 .link-btn { background: none; border: 0; padding: 0; font: inherit; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .link-btn:hover { color: var(--navy); }
+
+/* Floating "Message us" */
+.msg { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 45; display: grid; justify-items: end; gap: 0.75rem; }
+@media (max-width: 860px) { body.has-sticky .msg { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); } }
+.msg-fab { display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--navy), var(--blue)); color: #fff; border: 0; border-radius: 999px; padding: 0.8rem 1.15rem; font-family: var(--font-display); font-weight: 500; font-size: 1rem; cursor: pointer; box-shadow: 0 12px 28px rgba(30,91,216,.35); transition: transform .18s ease, box-shadow .18s ease; }
+.msg-fab:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(30,91,216,.4); }
+.msg-fab .ic { width: 1.25em; height: 1.25em; }
+.msg[data-open="true"] .msg-fab { display: none; }
+.msg-panel { width: min(380px, calc(100vw - 32px)); max-height: min(80vh, 640px); overflow: auto; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: 0 24px 60px rgba(11,60,140,.22); padding: 1.25rem; animation: rise .3s cubic-bezier(.2,.7,.2,1) both; }
+.msg-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; margin-bottom: 1rem; }
+.msg-head h2 { font-size: 1.25rem; margin: 0 0 0.2rem; }
+.msg-head p { margin: 0; color: var(--ink-2); font-size: 0.95rem; }
+.msg-close { flex: none; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line); background: var(--paper); color: var(--navy); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; }
+.msg-close .ic { width: 18px; height: 18px; }
+.msg-panel .form-actions { margin-top: 0.9rem; }
+.msg-panel .success-card { padding: 1rem 0 0; box-shadow: none; border: 0; }
+.msg-panel .success-card h2 { font-size: 1.3rem; }
+.msg-panel .success-card .lede { font-size: 1rem; }
+@media (max-width: 480px) { .msg-fab span { display: none; } .msg-fab { padding: 0.9rem; } .msg-fab .ic { width: 1.5em; height: 1.5em; } .msg[data-open="true"] { left: max(16px, env(safe-area-inset-left, 0px)); } .msg-panel { width: auto; } }
+@media (prefers-reduced-motion: reduce) { .msg-panel { animation: none; } }

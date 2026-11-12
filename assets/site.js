@@ -489,3 +489,22 @@
     }
   });
 })();
+
+
+/* ── Floating "Message us" panel ─────────────────────────────────────────── */
+(function () {
+  'use strict';
+  var root = document.getElementById('msg'); if (!root) return;
+  var fab = root.querySelector('.msg-fab'), panel = root.querySelector('.msg-panel'), close = root.querySelector('.msg-close');
+  function open() {
+    root.setAttribute('data-open', 'true'); panel.hidden = false; fab.setAttribute('aria-expanded', 'true');
+    var first = panel.querySelector('input, textarea'); if (first) setTimeout(function () { first.focus(); }, 50);
+  }
+  function shut() {
+    root.removeAttribute('data-open'); panel.hidden = true; fab.setAttribute('aria-expanded', 'false'); fab.focus();
+  }
+  fab.addEventListener('click', open);
+  close.addEventListener('click', shut);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !panel.hidden) shut(); });
+  document.querySelectorAll('a[data-open-message]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); open(); }); });
+})();
