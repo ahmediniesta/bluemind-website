@@ -45,6 +45,7 @@ CENTERS = [
         "key": "dearborn", "name": "Dearborn", "county": "Wayne County",
         "street": "18800 Hubbard Drive", "city": "Dearborn", "state": "MI", "zip": "48126",
         "payer": "Detroit Wayne Integrated Health Network (DWIHN)",
+        "photo_pos": "center 28%",
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 42.3157, "lng": -83.2286,
@@ -135,11 +136,12 @@ def art(name: str, label: str, variant: str = "a") -> str:
     )
 
 
-def photo(name: str, label: str, cls: str = "", variant: str = "a", eager: bool = False) -> str:
+def photo(name: str, label: str, cls: str = "", variant: str = "a", eager: bool = False, pos: str = "") -> str:
     loading = "eager" if eager else "lazy"
     priority = ' fetchpriority="high"' if eager else ""
+    style = f' style="object-position:{pos}"' if pos else ""
     return (
-        f'<div class="photo {cls}"><img src="photos/{name}.jpg" alt="{label}" loading="{loading}"{priority} decoding="async">'
+        f'<div class="photo {cls}"><img src="photos/{name}.jpg" alt="{label}" loading="{loading}"{priority} decoding="async"{style}>'
         f'{art(name, label, variant)}</div>'
     )
 
@@ -194,7 +196,7 @@ def gallery(spec: str, label: str = "Photos of our centers") -> str:
 
 def center_card(c: dict, with_photo: bool = False, detailed: bool = False) -> str:
     hours = "".join(f"<tr><td>{d}</td><td>{h}</td></tr>" for d, h in c["hours"])
-    photo_html = photo(c["key"], f"The BlueMind Therapy center in {c['name']}", "wide") if with_photo else ""
+    photo_html = photo(c["key"], f"The BlueMind Therapy center in {c['name']}", "wide", pos=c.get("photo_pos", "")) if with_photo else ""
     details = (
         f'<p class="muted small" style="margin:0.5rem 0 0">Medicaid members: {c["payer"]}</p>'
         f'<table class="hours-table" style="margin-top:0.75rem"><tbody>{hours}</tbody></table>'
