@@ -489,3 +489,13 @@ a:hover > .ic:last-child, .btn:hover > .ic:last-child { transform: translateX(4p
   .chat-window { width: 100vw; height: 100dvh; border-radius: 0; border: 0; }
 }
 @media (prefers-reduced-motion: reduce) { .chat-window, .bubble { animation: none; } .typing i { animation: none; opacity: .6; } .chat-log { scroll-behavior: auto; } }
+
+/* Per-center phone lines */
+.phone-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+.phone-list li { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.phone-list li span { color: var(--ink-2); font-size: 0.95rem; }
+.phone-list li a { font-family: var(--font-display); font-weight: 600; font-size: 1.15rem; text-decoration: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.phone-list.on-navy { margin-top: 0.5rem; }
+.phone-list.on-navy li span { color: rgba(255,255,255,.75); }
+.phone-list.on-navy li a { color: #fff; }
+.site-footer .cols address + a { display: inline-block; margin-top: 0.2rem; font-weight: 700; }

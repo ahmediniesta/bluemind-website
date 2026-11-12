@@ -37,6 +37,7 @@ CENTERS = [
         "key": "ypsilanti", "name": "Ypsilanti", "county": "Washtenaw County",
         "street": "1122 Walnut Street", "city": "Ypsilanti", "state": "MI", "zip": "48198",
         "payer": "Washtenaw County Community Mental Health",
+        "phone": "(734) 252-5215", "phone_href": "tel:+17342525215", "phone_e164": "+1-734-252-5215",
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 42.2443, "lng": -83.6090,
@@ -45,6 +46,7 @@ CENTERS = [
         "key": "dearborn", "name": "Dearborn", "county": "Wayne County",
         "street": "18800 Hubbard Drive", "city": "Dearborn", "state": "MI", "zip": "48126",
         "payer": "Detroit Wayne Integrated Health Network (DWIHN)",
+        "phone": "(313) 436-0319", "phone_href": "tel:+13134360319", "phone_e164": "+1-313-436-0319",
         "photo_pos": "center 12%",
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
@@ -54,6 +56,7 @@ CENTERS = [
         "key": "fort-gratiot", "name": "Fort Gratiot", "county": "St. Clair County",
         "street": "4435 24th Avenue", "city": "Fort Gratiot", "state": "MI", "zip": "48059",
         "payer": "St. Clair County Community Mental Health",
+        "phone": "(810) 479-9375", "phone_href": "tel:+18104799375", "phone_e164": "+1-810-479-9375",
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 43.0340, "lng": -82.4530,
@@ -203,6 +206,15 @@ def gallery(spec: str, label: str = "Photos of our centers") -> str:
     )
 
 
+def phone_list(cls: str = "") -> str:
+    """One line per center: name + its direct number."""
+    items = "".join(
+        f'<li><span>{c["name"]}</span><a href="{c["phone_href"]}">{c["phone"]}</a></li>' for c in CENTERS
+    )
+    klass = ("phone-list " + cls).strip()
+    return f'<ul class="{klass}">{items}</ul>'
+
+
 def center_card(c: dict, with_photo: bool = False, detailed: bool = False) -> str:
     hours = "".join(f"<tr><td>{d}</td><td>{h}</td></tr>" for d, h in c["hours"])
     photo_html = photo(c["key"], f"The BlueMind Therapy center in {c['name']}", "wide", pos=c.get("photo_pos", "")) if with_photo else ""
@@ -218,7 +230,7 @@ def center_card(c: dict, with_photo: bool = False, detailed: bool = False) -> st
         f'<address>{c["street"]}<br>{c["city"]}, {c["state"]} {c["zip"]}</address>'
         f'{details}'
         f'<div class="links"><a href="{maps_url(c)}" target="_blank" rel="noopener">Get directions</a>'
-        f'<a href="{ORG["phone_href"]}">Call {ORG["phone"]}</a>'
+        f'<a href="{c["phone_href"]}">Call {c["phone"]}</a>'
         + (f'<a href="refer.html">Refer to this center</a>' if detailed else "")
         + '</div></div>'
     )
@@ -233,7 +245,7 @@ def json_ld() -> str:
             "name": f"BlueMind Therapy {c['name']}",
             "parentOrganization": {"@type": "Organization", "name": ORG["legal"]},
             "url": f"{SITE}/locations#{c['key']}",
-            "telephone": ORG["phone_e164"],
+            "telephone": c["phone_e164"],
             "email": ORG["email"],
             "address": {
                 "@type": "PostalAddress", "streetAddress": c["street"], "addressLocality": c["city"],
@@ -314,7 +326,8 @@ def header(active: str) -> str:
 
 def footer() -> str:
     centers = "".join(
-        f'<li><strong>{c["name"]}</strong><br><address>{c["street"]}<br>{c["city"]}, {c["state"]} {c["zip"]}</address></li>'
+        f'<li><strong>{c["name"]}</strong><br><address>{c["street"]}<br>{c["city"]}, {c["state"]} {c["zip"]}</address>'
+        f'<a href="{c["phone_href"]}">{c["phone"]}</a></li>'
         for c in CENTERS
     )
     return (
@@ -388,6 +401,7 @@ def expand(body: str) -> str:
     body = re.sub(r"\{\{gallery:([^}]+)\}\}", lambda m: gallery(m.group(1)), body)
     body = body.replace("{{centers}}", "".join(center_card(c) for c in CENTERS))
     body = body.replace("{{centers-detailed}}", "".join(center_card(c, with_photo=True, detailed=True) for c in CENTERS))
+    body = re.sub(r"\{\{phones(?::([a-z -]+))?\}\}", lambda m: phone_list(m.group(1) or ""), body)
     for k, v in ORG.items():
         body = body.replace("{{" + k + "}}", v)
     for k, v in REPLY.items():
