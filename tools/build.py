@@ -45,7 +45,7 @@ CENTERS = [
         "key": "dearborn", "name": "Dearborn", "county": "Wayne County",
         "street": "18800 Hubbard Drive", "city": "Dearborn", "state": "MI", "zip": "48126",
         "payer": "Detroit Wayne Integrated Health Network (DWIHN)",
-        "photo_pos": "center 28%",
+        "photo_pos": "center 12%",
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 42.3157, "lng": -83.2286,
