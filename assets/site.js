@@ -363,5 +363,22 @@
       if (e.key === 'ArrowLeft') { e.preventDefault(); go(index() - 1); }
     });
     window.addEventListener('resize', function () { go(index()); });
+
+    // Auto-advance every 5 s while the gallery is on screen, until the visitor
+    // touches it (hover, focus, swipe, a click on an arrow or dot).
+    if (!reduce && slides().length > 1) {
+      var timer = null, stopped = false, visible = false;
+      var tick = function () { if (visible && !stopped && !g.matches(':hover') && !g.contains(document.activeElement)) go(index() + 1); };
+      var start = function () { if (!timer) timer = setInterval(tick, 5000); };
+      var stop = function () { stopped = true; if (timer) { clearInterval(timer); timer = null; } };
+      ['pointerdown', 'touchstart', 'keydown', 'wheel'].forEach(function (ev) { g.addEventListener(ev, stop, { passive: true }); });
+      g.querySelectorAll('button').forEach(function (b) { b.addEventListener('click', stop); });
+      if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+          visible = entries.some(function (e) { return e.isIntersecting; });
+          if (visible) start();
+        }, { threshold: 0.4 }).observe(g);
+      } else { visible = true; start(); }
+    }
   });
 })();
