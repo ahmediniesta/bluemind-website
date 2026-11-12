@@ -112,14 +112,14 @@ def icon(name: str, cls: str = "") -> str:
     return f'<svg class="{classes}" aria-hidden="true" focusable="false"><use href="#i-{name}"/></svg>'
 
 
-def art(name: str, label: str) -> str:
+def art(name: str, label: str, variant: str = "a") -> str:
     """Illustrated panel used until a real photo is dropped into photos/."""
     variants = {
         "a": (0, "#0B3C8C", "#5AA9E6", "#FFFFFF"),
         "b": (12, "#1E5BD8", "#FFFFFF", "#5AA9E6"),
         "c": (-10, "#5AA9E6", "#0B3C8C", "#FFFFFF"),
     }
-    rot, c1, c2, c3 = variants[name[-1] if name[-1] in variants else "a"]
+    rot, c1, c2, c3 = variants.get(variant, variants["a"])
     gid = f"g-{name}"
     return (
         f'<div class="art"><svg viewBox="0 0 800 600" role="img" aria-label="{label}">'
@@ -135,10 +135,12 @@ def art(name: str, label: str) -> str:
     )
 
 
-def photo(name: str, label: str, cls: str = "") -> str:
+def photo(name: str, label: str, cls: str = "", variant: str = "a", eager: bool = False) -> str:
+    loading = "eager" if eager else "lazy"
+    priority = ' fetchpriority="high"' if eager else ""
     return (
-        f'<div class="photo {cls}"><img src="photos/{name}.jpg" alt="{label}" loading="lazy" decoding="async">'
-        f'{art(name, label)}</div>'
+        f'<div class="photo {cls}"><img src="photos/{name}.jpg" alt="{label}" loading="{loading}"{priority} decoding="async">'
+        f'{art(name, label, variant)}</div>'
     )
 
 
@@ -317,7 +319,11 @@ def parse(path: Path) -> tuple[dict, str]:
 def expand(body: str) -> str:
     """Tiny template tags so pages stay readable."""
     body = re.sub(r"\{\{icon:([a-z-]+)(?::([a-z -]+))?\}\}", lambda m: icon(m.group(1), m.group(2) or ""), body)
-    body = re.sub(r"\{\{photo:([a-z-]+)\|([^|}]+)(?:\|([a-z ]+))?\}\}", lambda m: photo(m.group(1), m.group(2), m.group(3) or ""), body)
+    body = re.sub(
+        r"\{\{photo:([a-z-]+)\|([^|}]+)(?:\|([a-z ]*))?(?:\|([abc]))?\}\}",
+        lambda m: photo(m.group(1), m.group(2), m.group(3) or "", m.group(4) or "a", eager=(m.group(1) == "hero")),
+        body,
+    )
     body = body.replace("{{centers}}", "".join(center_card(c) for c in CENTERS))
     body = body.replace("{{centers-detailed}}", "".join(center_card(c, with_photo=True, detailed=True) for c in CENTERS))
     for k, v in ORG.items():
