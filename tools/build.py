@@ -37,24 +37,24 @@ CENTERS = [
         "key": "ypsilanti", "name": "Ypsilanti", "county": "Washtenaw County",
         "street": "1122 Walnut Street", "city": "Ypsilanti", "state": "MI", "zip": "48198",
         "payer": "Washtenaw County Community Mental Health",
-        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "9:00 am to 6:00 pm"), ("Sunday", "Closed")],
-        "opening": ["Mo-Fr 08:00-20:00", "Sa 09:00-18:00"],
+        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
+        "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 42.2443, "lng": -83.6090,
     },
     {
         "key": "dearborn", "name": "Dearborn", "county": "Wayne County",
         "street": "18800 Hubbard Drive", "city": "Dearborn", "state": "MI", "zip": "48126",
         "payer": "Detroit Wayne Integrated Health Network (DWIHN)",
-        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday and Sunday", "Closed")],
-        "opening": ["Mo-Fr 08:00-20:00"],
+        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
+        "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 42.3157, "lng": -83.2286,
     },
     {
         "key": "fort-gratiot", "name": "Fort Gratiot", "county": "St. Clair County",
         "street": "4435 24th Avenue", "city": "Fort Gratiot", "state": "MI", "zip": "48059",
         "payer": "St. Clair County Community Mental Health",
-        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday and Sunday", "Closed")],
-        "opening": ["Mo-Fr 08:00-20:00"],
+        "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
+        "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 43.0340, "lng": -82.4530,
     },
 ]
@@ -165,6 +165,31 @@ def safety_block() -> str:
             '</li>'
         )
     return f'<ul class="safety clean">{cards}</ul>'
+
+
+def gallery(spec: str, label: str = "Photos of our centers") -> str:
+    """{{gallery:name|caption;name|caption;...}} -> a swipeable photo gallery.
+    Slides whose photo is missing remove themselves (site.js)."""
+    slides = ""
+    items = [s for s in spec.split(";") if s.strip()]
+    for i, item in enumerate(items):
+        name, _, caption = item.partition("|")
+        name, caption = name.strip(), caption.strip()
+        loading = "eager" if i == 0 else "lazy"
+        slides += (
+            f'<figure class="gallery-slide" data-index="{i}">'
+            f'<img src="photos/{name}.jpg" alt="{caption}" loading="{loading}" decoding="async">'
+            f'<figcaption>{caption}</figcaption></figure>'
+        )
+    return (
+        f'<div class="gallery" aria-roledescription="carousel" aria-label="{label}">'
+        f'<div class="gallery-track" tabindex="0" aria-live="polite">{slides}</div>'
+        f'<button type="button" class="gallery-btn prev" aria-label="Previous photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 5-7 7 7 7"/></svg></button>'
+        f'<button type="button" class="gallery-btn next" aria-label="Next photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button>'
+        f'<div class="gallery-dots" role="tablist" aria-label="Choose a photo"></div>'
+        f'<div class="gallery-count" aria-hidden="true"></div>'
+        '</div>'
+    )
 
 
 def center_card(c: dict, with_photo: bool = False, detailed: bool = False) -> str:
@@ -324,6 +349,7 @@ def expand(body: str) -> str:
         lambda m: photo(m.group(1), m.group(2), m.group(3) or "", m.group(4) or "a", eager=(m.group(1) == "hero")),
         body,
     )
+    body = re.sub(r"\{\{gallery:([^}]+)\}\}", lambda m: gallery(m.group(1)), body)
     body = body.replace("{{centers}}", "".join(center_card(c) for c in CENTERS))
     body = body.replace("{{centers-detailed}}", "".join(center_card(c, with_photo=True, detailed=True) for c in CENTERS))
     for k, v in ORG.items():

@@ -313,3 +313,55 @@
     var l = document.createElement('link'); l.rel = 'prefetch'; l.href = href; document.head.appendChild(l);
   }, { passive: true });
 })();
+
+/* ── Photo gallery ───────────────────────────────────────────────────────── */
+(function () {
+  'use strict';
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.gallery').forEach(function (g) {
+    var track = g.querySelector('.gallery-track');
+    var dots = g.querySelector('.gallery-dots');
+    var count = g.querySelector('.gallery-count');
+    var prev = g.querySelector('.prev'), next = g.querySelector('.next');
+    var slides = function () { return Array.prototype.slice.call(track.querySelectorAll('.gallery-slide')); };
+
+    function buildDots() {
+      dots.innerHTML = '';
+      slides().forEach(function (s, i) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.setAttribute('role', 'tab'); b.setAttribute('aria-label', 'Photo ' + (i + 1));
+        b.addEventListener('click', function () { go(i); });
+        dots.appendChild(b);
+      });
+      if (slides().length < 2) { prev.hidden = true; next.hidden = true; dots.hidden = true; count.hidden = true; }
+    }
+    function index() { return Math.round(track.scrollLeft / Math.max(1, track.clientWidth)); }
+    function go(i) {
+      var n = slides().length; if (!n) return;
+      i = (i + n) % n;
+      track.scrollTo({ left: i * track.clientWidth, behavior: reduce ? 'auto' : 'smooth' });
+    }
+    function sync() {
+      var i = index(), n = slides().length;
+      dots.querySelectorAll('button').forEach(function (b, j) { b.setAttribute('aria-selected', j === i ? 'true' : 'false'); });
+      count.textContent = n ? (i + 1) + ' / ' + n : '';
+    }
+    // A missing photo removes its slide rather than showing a broken image.
+    slides().forEach(function (s) {
+      var img = s.querySelector('img');
+      var drop = function () { s.remove(); buildDots(); sync(); };
+      if (img.complete && img.naturalWidth === 0) drop();
+      img.addEventListener('error', drop);
+    });
+    buildDots(); sync();
+    prev.addEventListener('click', function () { go(index() - 1); });
+    next.addEventListener('click', function () { go(index() + 1); });
+    var raf = false;
+    track.addEventListener('scroll', function () { if (raf) return; raf = true; requestAnimationFrame(function () { sync(); raf = false; }); }, { passive: true });
+    track.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight') { e.preventDefault(); go(index() + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); go(index() - 1); }
+    });
+    window.addEventListener('resize', function () { go(index()); });
+  });
+})();

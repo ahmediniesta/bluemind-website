@@ -12,7 +12,9 @@ shows an illustrated panel in its place. Current files came from the owner on 20
 | `reception.jpg` | Locations page, "What to expect" | Lobby with the logo |
 | `services.jpg` | Services page | Therapy room with the chalkboard |
 | `careers.jpg` | Home page, careers section | Therapy room with the magnet letters |
-| `team.jpg` | About page | Team photo (cropped from a Snapchat screenshot) |
+
+The About page shows a gallery of the center photos above (see `{{gallery:...}}` in
+`src/pages/about.html`); add a photo there by adding `name|caption` to the list.
 
 Rules: never a client, a client's first name, artwork with a name, or anything that could
 identify a child. Staff photos need the staff member's written consent (the team photo
