@@ -265,8 +265,12 @@ input:user-invalid, select:user-invalid, textarea:user-invalid { border-color: v
 .prose ul { padding-left: 1.2rem; color: var(--ink-2); }
 
 /* ── Premium layer: motion, depth, glass ───────────────────────────────── */
-@keyframes pageIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+/* Opacity only: a transform on body (even a finished one) makes it the containing block for
+   position:fixed, which parked the chat button and the phone call bar at the bottom of the page. */
+@keyframes pageIn { from { opacity: 0; } to { opacity: 1; } }
 body { animation: pageIn .45s ease both; }
+/* The hidden attribute always wins over a component's own display (the closed chat window is display:flex). */
+[hidden] { display: none !important; }
 .progress { position: fixed; top: env(safe-area-inset-top, 0px); left: 0; height: 3px; width: 0; background: linear-gradient(90deg, var(--blue), var(--sky)); z-index: 70; transition: width .12s linear; pointer-events: none; }
 
 /* Header shrink */
@@ -440,6 +444,8 @@ a:hover > .ic:last-child, .btn:hover > .ic:last-child { transform: translateX(4p
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 .chat { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 45; display: grid; justify-items: end; gap: 0.75rem; }
 @media (max-width: 860px) { body.has-sticky .chat { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); } }
+/* On phones the window sits above the call bar, so it must be shorter or its header (and Close) leaves the screen. */
+@media (max-width: 860px) { body.has-sticky .chat-window { height: min(640px, calc(100vh - 120px - env(safe-area-inset-bottom, 0px))); height: min(640px, calc(100dvh - 120px - env(safe-area-inset-bottom, 0px))); } }
 .chat-fab { position: relative; display: inline-flex; align-items: center; gap: 0.5rem; background: linear-gradient(135deg, var(--navy), var(--blue)); color: #fff; border: 0; border-radius: 999px; padding: 0.85rem 1.2rem; font-family: var(--font-display); font-weight: 500; font-size: 1.02rem; cursor: pointer; box-shadow: 0 12px 28px rgba(30,91,216,.35); transition: transform .18s ease, box-shadow .18s ease; }
 .chat-fab:hover { transform: translateY(-2px); box-shadow: 0 16px 32px rgba(30,91,216,.4); }
 .chat-fab .ic { width: 1.3em; height: 1.3em; }

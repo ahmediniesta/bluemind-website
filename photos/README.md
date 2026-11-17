@@ -9,7 +9,7 @@ shows an illustrated panel in its place. Current files came from the owner on 20
 | `ypsilanti.jpg` | Locations page, Ypsilanti card | Building with the sign |
 | `dearborn.jpg` | Locations page, Dearborn card; About gallery | Entrance with the 18800 awning |
 | `dearborn-sign.jpg` | About gallery | Road sign at 18800 Hubbard Drive |
-| `fort-gratiot.jpg` | Locations page, Fort Gratiot card | still the illustrated panel |
+| `fort-gratiot.jpg` | Locations page, Fort Gratiot card; its center page | Building and road sign on 24th Avenue (owner 2026-11-17, sky cropped) |
 | `reception.jpg` | Locations page, "What to expect" | Lobby with the logo |
 | `cameras.jpg` | Safety sections on home and locations | Camera monitor, feeds blurred for privacy |
 | `services.jpg` | Services page | Therapy room with the chalkboard |

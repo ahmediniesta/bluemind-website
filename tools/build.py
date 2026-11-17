@@ -44,6 +44,9 @@ CENTERS = [
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 42.2443, "lng": -83.6090,
+        "towns": ["Ann Arbor", "Ypsilanti Township", "Superior Township", "Pittsfield Township", "Saline", "Milan"],
+        "find": "The center is on Walnut Street in Ypsilanti. Look for the BlueMind Therapy sign on the building.",
+        "gallery": "reception|The lobby at our Ypsilanti center;hero|The playground at our Ypsilanti center;services|A therapy room ready for the day",
     },
     {
         "key": "dearborn", "name": "Dearborn", "county": "Wayne County",
@@ -54,15 +57,22 @@ CENTERS = [
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 42.3157, "lng": -83.2286,
+        "towns": ["Dearborn Heights", "Detroit", "Allen Park", "Melvindale", "Inkster", "Garden City"],
+        "find": "The entrance is under the 18800 awning on Hubbard Drive. Look for BlueMind on the road sign.",
+        "gallery": "dearborn-sign|Look for BlueMind on the sign at 18800 Hubbard Drive;services|A therapy room ready for the day",
     },
     {
         "key": "fort-gratiot", "name": "Fort Gratiot", "county": "St. Clair County",
         "street": "4435 24th Avenue", "city": "Fort Gratiot", "state": "MI", "zip": "48059",
         "payer": "St. Clair County Community Mental Health",
         "phone": "(810) 479-9375", "phone_href": "tel:+18104799375", "phone_e164": "+1-810-479-9375",
+        "photo_pos": "12% center",
         "hours": [("Monday to Friday", "8:00 am to 8:00 pm"), ("Saturday", "8:00 am to 3:00 pm"), ("Sunday", "Closed")],
         "opening": ["Mo-Fr 08:00-20:00", "Sa 08:00-15:00"],
         "lat": 43.0340, "lng": -82.4530,
+        "towns": ["Port Huron", "Marysville", "Kimball Township", "St. Clair", "Marine City"],
+        "find": "The center is the brick building on 24th Avenue. Look for the BlueMind Therapy sign by the road.",
+        "gallery": "",
     },
 ]
 
@@ -234,9 +244,151 @@ def center_card(c: dict, with_photo: bool = False, detailed: bool = False) -> st
         f'{details}'
         f'<div class="links"><a href="{maps_url(c)}" target="_blank" rel="noopener">Get directions</a>'
         f'<a href="{c["phone_href"]}">Call {c["phone"]}</a>'
-        + (f'<a href="refer.html">Refer to this center</a>' if detailed else "")
+        + (f'<a href="{center_slug(c)}.html">About the {c["name"]} center</a>'
+           f'<a href="refer.html?center={c["name"].replace(" ", "+")}">Refer to this center</a>' if detailed else "")
         + '</div></div>'
     )
+
+
+def center_slug(c: dict) -> str:
+    """One page per center, named for what families search: "ABA therapy Dearborn"."""
+    return f"aba-therapy-{c['key']}"
+
+
+def center_faq(c: dict) -> list[tuple[str, str]]:
+    hours = "; ".join(f"{d} {h}" for d, h in c["hours"])
+    return [
+        (f"Where is the BlueMind Therapy center in {c['name']}?",
+         f"{c['street']}, {c['city']}, {c['state']} {c['zip']}. {c['find']} Parking is free."),
+        (f"What insurance does the {c['name']} center take?",
+         f"Medicaid through {c['payer']}, Blue Cross Blue Shield of Michigan, and private pay. Call {c['phone']} and we will check your plan with you."),
+        ("What ages do you work with?",
+         "Children and teens from 12 months to 18 years with an autism spectrum diagnosis."),
+        (f"What are the hours at the {c['name']} center?", f"{hours}."),
+        ("Do you come to our home or school?",
+         f"Yes. In-home, school and community sessions are scheduled from this center across {c['county']}."),
+        ("How do we get started?",
+         f"Send a referral online or call {c['phone']}. Our intake team calls the parent or guardian within {REPLY['referral']}, confirms the diagnosis and insurance, and requests authorization. Then a BCBA schedules the assessment."),
+    ]
+
+
+def center_json_ld(c: dict) -> str:
+    import json
+    data = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "MedicalBusiness",
+                "name": f"BlueMind Therapy {c['name']}",
+                "parentOrganization": {"@type": "Organization", "name": ORG["legal"], "url": SITE},
+                "url": f"{SITE}/{center_slug(c)}",
+                "telephone": c["phone_e164"],
+                "email": ORG["email"],
+                "address": {
+                    "@type": "PostalAddress", "streetAddress": c["street"], "addressLocality": c["city"],
+                    "addressRegion": c["state"], "postalCode": c["zip"], "addressCountry": "US",
+                },
+                "geo": {"@type": "GeoCoordinates", "latitude": c["lat"], "longitude": c["lng"]},
+                "areaServed": [c["county"], *c["towns"]],
+                "openingHours": c["opening"],
+                "medicalSpecialty": "Behavioral health",
+                "image": f"{SITE}/photos/{c['key']}.jpg",
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {"@type": "Question", "name": q, "acceptedAnswer": {"@type": "Answer", "text": a}}
+                    for q, a in center_faq(c)
+                ],
+            },
+        ],
+    }
+    return f'<script type="application/ld+json">{json.dumps(data, separators=(",", ":"))}</script>'
+
+
+def center_page(c: dict) -> tuple[dict, str]:
+    """(front matter, body) for a center's own page. Built from CENTERS so the
+    address, phone and hours can never drift from the rest of the site."""
+    name, county = c["name"], c["county"]
+    towns = ", ".join(c["towns"][:-1]) + " and " + c["towns"][-1]
+    hours = "".join(f"<tr><td>{d}</td><td>{h}</td></tr>" for d, h in c["hours"])
+    refer = f'refer.html?center={name.replace(" ", "+")}'
+    faq = "".join(f"<details><summary>{q}</summary><p>{a}</p></details>" for q, a in center_faq(c))
+    others = "".join(
+        f'<a class="btn btn-secondary" href="{center_slug(o)}.html">{o["name"]}</a>' for o in CENTERS if o is not c
+    )
+    extra = (
+        f'<section class="band band-tight" aria-label="Photos of the {name} center"><div class="wrap">{gallery(c["gallery"], f"Photos of the {name} center")}</div></section>'
+        if c.get("gallery") else ""
+    )
+    meta = {
+        "title": f"ABA therapy in {name}, Michigan",
+        "description": (
+            f"BlueMind Therapy {name}: one-on-one ABA therapy for children and teens with autism at {c['street']}, "
+            f"{c['city']}, MI, and at home and school across {county}. Medicaid through {c['payer']}. Call {c['phone']}."
+        ),
+        "nav": "locations",
+    }
+    body = f"""
+<section class="page-intro"><div class="wrap">
+  <p class="eyebrow">{county}</p>
+  <h1>ABA therapy in {name}, Michigan</h1>
+  <p class="lede">One-on-one Applied Behavior Analysis therapy for children and teens with autism, from 12 months to 18 years, at our {name} center and at home, at school and in the community across {county}.</p>
+  <div class="cta-row"><a class="btn btn-primary" href="{refer}">Refer a child to {name}</a><a class="btn btn-secondary" href="{c['phone_href']}">Call {c['phone']}</a></div>
+</div></section>
+
+<section class="band band-tight" aria-labelledby="visit-h">
+  <div class="wrap split" style="align-items:start">
+    <div>{photo(c['key'], f"The BlueMind Therapy center in {name}", "wide", eager=True, pos=c.get("photo_pos", ""))}</div>
+    <div>
+      <p class="eyebrow">Visit us</p>
+      <h2 id="visit-h">BlueMind Therapy {name}</h2>
+      <address style="font-style:normal;font-size:1.1rem;margin:0 0 0.75rem">{c['street']}<br>{c['city']}, {c['state']} {c['zip']}</address>
+      <p>{c['find']}</p>
+      <table class="hours-table" style="margin:0 0 1rem"><tbody>{hours}</tbody></table>
+      <ul class="checks">
+        <li>{icon('check')}<span>Free parking</span></li>
+        <li>{icon('check')}<span>Interpreter services arranged on request</span></li>
+        <li>{icon('check')}<span>Tours for families considering BlueMind</span></li>
+      </ul>
+      <div class="cta-row"><a class="btn btn-primary" href="{maps_url(c)}" target="_blank" rel="noopener">Get directions</a><a class="btn btn-secondary" href="contact.html">Book a tour</a></div>
+    </div>
+  </div>
+</section>
+{extra}
+<section class="band band-mist" aria-labelledby="area-h">
+  <div class="wrap grid grid-3">
+    <div class="card"><div class="icon">{icon('map')}</div><h3 id="area-h">Where we serve</h3>
+      <p>Families come to the center in {name}. In-home, school and community sessions are scheduled from this center across {county}, including {towns}.</p></div>
+    <div class="card"><div class="icon">{icon('shield')}</div><h3>Insurance</h3>
+      <p>Medicaid through {c['payer']}, Blue Cross Blue Shield of Michigan, and private pay. For Medicaid members we bill the county program directly.</p></div>
+    <div class="card"><div class="icon">{icon('heart')}</div><h3>What we offer here</h3>
+      <p>Assessment by a BCBA, one-on-one ABA therapy, parent training, and coordination with your child's school. <a href="services.html">See all services</a>.</p></div>
+  </div>
+</section>
+
+<section class="band" aria-labelledby="safe-h">
+  <div class="wrap">
+    <div class="section-head center" style="margin-inline:auto"><p class="eyebrow">Safe by design</p><h2 id="safe-h">The same protections at every center</h2></div>
+    {safety_block()}
+  </div>
+</section>
+
+<section class="band band-mist" aria-labelledby="faq-h">
+  <div class="wrap">
+    <div class="section-head"><p class="eyebrow">{name}</p><h2 id="faq-h">Questions families in {county} ask</h2></div>
+    <div class="faq">{faq}</div>
+  </div>
+</section>
+
+<section class="band band-tight" aria-label="Our other centers">
+  <div class="wrap" style="text-align:center">
+    <p class="eyebrow">Our other centers</p>
+    <div class="cta-row" style="justify-content:center">{others}<a class="btn btn-secondary" href="locations.html">All locations</a></div>
+  </div>
+</section>
+"""
+    return meta, body
 
 
 def json_ld() -> str:
@@ -247,7 +399,7 @@ def json_ld() -> str:
             "@type": "MedicalBusiness",
             "name": f"BlueMind Therapy {c['name']}",
             "parentOrganization": {"@type": "Organization", "name": ORG["legal"]},
-            "url": f"{SITE}/locations#{c['key']}",
+            "url": f"{SITE}/{center_slug(c)}",
             "telephone": c["phone_e164"],
             "email": ORG["email"],
             "address": {
@@ -348,7 +500,7 @@ def footer() -> str:
     )
 
 
-def head(meta: dict, slug: str) -> str:
+def head(meta: dict, slug: str, ld: str = "") -> str:
     title = meta["title"] if slug == "index" else f'{meta["title"]} · BlueMind Therapy'
     desc = meta["description"]
     canonical = SITE + ("/" if slug == "index" else f"/{slug}")
@@ -377,7 +529,7 @@ def head(meta: dict, slug: str) -> str:
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap">
 <link rel="stylesheet" href="assets/site.css">
-{json_ld() if slug in ("index", "locations") else ""}
+{ld or (json_ld() if slug in ("index", "locations") else "")}
 </head>"""
 
 
@@ -417,7 +569,7 @@ def expand(body: str) -> str:
 
 def pretty_links(html: str) -> str:
     html = re.sub(r'href="index\.html(#[^"]*)?"', lambda m: f'href="/{m.group(1) or ""}"', html)
-    return re.sub(r'href="([a-z0-9-]+)\.html(#[^"]*)?"', lambda m: f'href="/{m.group(1)}{m.group(2) or ""}"', html)
+    return re.sub(r'href="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1)}{m.group(2) or ""}"', html)
 
 
 def build(out: Path, html_links: bool) -> list[str]:
@@ -437,6 +589,19 @@ def build(out: Path, html_links: bool) -> list[str]:
             page = pretty_links(page)
         (out / f"{slug}.html").write_text(page, encoding="utf-8")
         slugs.append(slug)
+    center_slugs = []
+    for c in CENTERS:
+        meta, body = center_page(c)
+        slug = center_slug(c)
+        page = (
+            head(meta, slug, center_json_ld(c)) + "\n<body>\n" + sprite() + header(meta["nav"]) +
+            f'<main id="main">{body}</main>' + footer() + message_widget() +
+            '\n<script src="assets/config.js"></script>\n<script src="assets/site.js" defer></script>\n</body>\n</html>\n'
+        )
+        if not html_links:
+            page = pretty_links(page)
+        (out / f"{slug}.html").write_text(page, encoding="utf-8")
+        center_slugs.append(slug)
     if out != ROOT:
         for d in ("assets", "photos"):
             if (out / d).exists():
@@ -447,11 +612,12 @@ def build(out: Path, html_links: bool) -> list[str]:
         f"<url><loc>{SITE}/{'' if s == 'index' else s}</loc></url>"
         for s in slugs if s not in ("404",) and parse(SRC / f"{s}.html")[0].get("noindex") != "true"
     )
+    urls += "".join(f"<url><loc>{SITE}/{s}</loc></url>" for s in center_slugs)
     (out / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n',
         encoding="utf-8",
     )
-    return slugs
+    return slugs + center_slugs
 
 
 if __name__ == "__main__":
