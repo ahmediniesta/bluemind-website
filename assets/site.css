@@ -515,3 +515,14 @@ a:hover > .ic:last-child, .btn:hover > .ic:last-child { transform: translateX(4p
 @media (max-width: 860px) { .lang-switch { margin: 0.75rem 0 0; align-self: flex-start; } }
 
 .nav a { white-space: nowrap; }
+
+/* BHCOE accreditation block: official badge on one side, what it means on the other. */
+.bhcoe { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(1.5rem, 4vw, 3rem); align-items: center; max-width: 920px; margin-inline: auto; }
+.bhcoe-badge { display: block; flex: none; }
+.bhcoe-badge img { width: clamp(130px, 18vw, 200px); height: auto; display: block; filter: drop-shadow(0 8px 18px rgba(11,60,140,.16)); }
+.bhcoe h2 { margin-top: 0; }
+.bhcoe-compact h2 { font-size: 1.5rem; }
+.bhcoe-compact .bhcoe-badge img { width: clamp(110px, 14vw, 150px); }
+.strip .wrap a { color: var(--navy); text-decoration: none; }
+.strip .wrap a:hover { text-decoration: underline; }
+@media (max-width: 600px) { .bhcoe { grid-template-columns: 1fr; justify-items: center; text-align: center; } .bhcoe .checks { text-align: start; } }

@@ -53,5 +53,15 @@
   "js_call_us": "Llámenos",
   "js_refer_child": "Referir a un niño",
   "js_error_generic": "Algo salió mal. Inténtelo de nuevo o llámenos.",
-  "english_only_note": "Esta página está en inglés."
+  "english_only_note": "Esta página está en inglés.",
+  "bhcoe_eyebrow": "Acreditación",
+  "bhcoe_title": "Un centro acreditado por BHCOE",
+  "bhcoe_body": "BlueMind Therapy cuenta con la Acreditación Completa del Behavioral Health Center of Excellence (BHCOE), el organismo que acredita a los proveedores de terapia ABA. Estamos acreditados desde 2023 y nuestra acreditación actual está vigente hasta mayo de 2027.",
+  "bhcoe_check_1": "Calidad clínica evaluada por un organismo acreditador independiente",
+  "bhcoe_check_2": "Cualificación, capacitación y supervisión del personal revisadas según estándares nacionales",
+  "bhcoe_check_3": "Encuestas a las familias y al personal en cada evaluación",
+  "bhcoe_scope": "Centros acreditados: Ypsilanti y Fort Gratiot.",
+  "bhcoe_verify": "Verificar en bhcoe.org",
+  "bhcoe_alt": "Insignia de centro acreditado por el Behavioral Health Center of Excellence, 2025 a 2027",
+  "bhcoe_chip": "Acreditado por BHCOE"
 }

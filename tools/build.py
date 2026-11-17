@@ -247,6 +247,34 @@ def safety_block(lang: str = "en") -> str:
     return banner + f'<ul class="safety clean">{cards}</ul>'
 
 
+# BHCOE accreditation (owner 2026-11-17). Facts from BHCOE's own directory listing for
+# BlueMind: Full Accreditation, accredited since 2023, through May 1, 2027, listing the
+# Ypsilanti and Fort Gratiot centers. BHCOE's logo rules require naming the accredited
+# locations next to the badge when not every location is listed, so the block does.
+# The badge file is BHCOE's own, resized only. Update the file and dates at renewal.
+BHCOE = {
+    "listing": "https://www.bhcoe.org/aba-therapy/bluemind-therapy-ypsilanti-michigan-48198/",
+    "badge": "assets/bhcoe-accredited-2025-2027.png",
+    "centers": ("ypsilanti", "fort-gratiot"),
+}
+
+
+def accreditation_block(lang: str = "en", compact: bool = False) -> str:
+    t = T(lang)
+    checks = "".join(f'<li>{icon("check")}<span>{t[k]}</span></li>' for k in ("bhcoe_check_1", "bhcoe_check_2", "bhcoe_check_3"))
+    badge = (
+        f'<a class="bhcoe-badge" href="{BHCOE["listing"]}" target="_blank" rel="noopener">'
+        f'<img src="{BHCOE["badge"]}" alt="{t["bhcoe_alt"]}" width="200" height="300" loading="lazy" decoding="async"></a>'
+    )
+    return (
+        f'<div class="bhcoe{" bhcoe-compact" if compact else ""}">{badge}'
+        f'<div><p class="eyebrow">{t["bhcoe_eyebrow"]}</p><h2 id="bhcoe-h">{t["bhcoe_title"]}</h2>'
+        f'<p>{t["bhcoe_body"]}</p><ul class="checks">{checks}</ul>'
+        f'<p class="small muted" style="margin:0.9rem 0 0">{t["bhcoe_scope"]} '
+        f'<a href="{BHCOE["listing"]}" target="_blank" rel="noopener">{t["bhcoe_verify"]}</a></p></div></div>'
+    )
+
+
 def gallery(spec: str, label: str = "Photos of our centers") -> str:
     """{{gallery:name|caption;name|caption;...}} -> a swipeable photo gallery.
     Slides whose photo is missing remove themselves (site.js)."""
@@ -380,6 +408,10 @@ def center_page(c: dict) -> tuple[dict, str]:
         f'<section class="band band-tight" aria-label="Photos of the {name} center"><div class="wrap">{gallery(c["gallery"], f"Photos of the {name} center")}</div></section>'
         if c.get("gallery") else ""
     )
+    accred = (
+        f'<section class="band band-tight" aria-labelledby="bhcoe-h"><div class="wrap">{accreditation_block("en", compact=True)}</div></section>'
+        if c["key"] in BHCOE["centers"] else ""
+    )
     meta = {
         "title": f"ABA therapy in {name}, Michigan",
         "description": (
@@ -433,6 +465,7 @@ def center_page(c: dict) -> tuple[dict, str]:
   </div>
 </section>
 
+{accred}
 <section class="band band-mist" aria-labelledby="faq-h">
   <div class="wrap">
     <div class="section-head"><p class="eyebrow">{name}</p><h2 id="faq-h">Questions families in {county} ask</h2></div>
@@ -683,6 +716,7 @@ def expand(body: str, lang: str = "en") -> str:
     for k, v in REPLY.items():
         body = body.replace("{{reply:" + k + "}}", v)
     body = body.replace("{{safety}}", safety_block(lang))
+    body = body.replace("{{accreditation}}", accreditation_block(lang))
     return body
 
 
