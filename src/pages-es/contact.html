@@ -1,0 +1,41 @@
+<!--
+title: Contacto
+description: Comuníquese con BlueMind Therapy. Llame al (734) 252-5215, escriba a info@bluemindmi.com o envíenos un mensaje. Centros en Ypsilanti, Dearborn y Fort Gratiot, Michigan.
+nav: contact
+sticky: false
+-->
+<section class="page-intro"><div class="wrap">
+  <p class="eyebrow">Contacto</p>
+  <h1>Nos encantaría saber de usted</h1>
+  <p class="lede">Preguntas sobre servicios, elegibilidad, seguro médico o cupos disponibles en un centro. Nuestro equipo de admisión responde en un plazo de un día hábil.</p>
+</div></section>
+
+<section class="band band-tight">
+  <div class="wrap" style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:2rem;align-items:start">
+    <div style="display:grid;gap:1.25rem">
+      <div class="card"><div class="icon">{{icon:phone}}</div><h3>Llámenos</h3><p class="muted small" style="margin:0 0 0.35rem">Cada centro tiene su propia línea.</p>{{phones}}<p class="muted" style="margin:0.75rem 0 0">Lunes a viernes, 8:00 am a 8:00 pm<br>Sábado, 8:00 am a 3:00 pm</p></div>
+      <div class="card"><div class="icon">{{icon:mail}}</div><h3>Correo electrónico</h3><p>Preguntas generales y referidos: <a href="mailto:{{email}}">{{email}}</a><br>Empleo y Recursos Humanos: <a href="mailto:{{careers_email}}">{{careers_email}}</a></p></div>
+      <div class="card"><div class="icon">{{icon:pin}}</div><h3>Visite un centro</h3><p class="muted">Ypsilanti · Dearborn · Fort Gratiot</p><p style="margin:0"><a href="locations.html">Direcciones, horarios y cómo llegar {{icon:arrow}}</a></p></div>
+      <div class="card"><div class="icon">{{icon:clipboard}}</div><h3>¿Ya nos envió algo?</h3><p style="margin:0"><a href="status.html">Consulte el estado de un referido, una solicitud de empleo o un mensaje {{icon:arrow}}</a></p></div>
+      <div class="notice small">¿Ya es una familia de BlueMind? Llame directamente a su centro o escriba a su BCBA; este formulario es para consultas nuevas.</div>
+    </div>
+    <div class="form-card">
+      <h2 style="margin-bottom:0.25rem">Envíe un mensaje</h2>
+      <p class="muted" style="margin-bottom:1.5rem">Cuéntenos un poco sobre lo que necesita y la mejor manera de comunicarnos con usted.</p>
+      <form data-endpoint="message" data-success-title="Mensaje enviado" data-success-body="Gracias. Le responderemos en un plazo de un día hábil. Si nos dio un correo electrónico, ya va en camino un comprobante con su número de referencia." novalidate>
+        <div class="fields">
+          <div><label for="c_name">Su nombre <span class="req" aria-hidden="true">*</span></label><input id="c_name" name="full_name" type="text" required maxlength="255" autocomplete="name"></div>
+          <div><label for="c_email">Correo electrónico</label><input id="c_email" name="email" type="email" maxlength="255" autocomplete="email"></div>
+          <div><label for="c_phone">Teléfono</label><input id="c_phone" name="phone" type="tel" maxlength="40" autocomplete="tel"></div>
+          <div><label for="c_location">Centro más cercano</label><select id="c_location" name="preferred_location"><option value="">No estoy seguro</option><option value="Ypsilanti">Ypsilanti</option><option value="Dearborn">Dearborn</option><option value="Fort Gratiot">Fort Gratiot</option><option value="Any location">Cualquier centro</option></select></div>
+          <div class="full"><label for="c_topic">¿Sobre qué nos escribe?</label><select id="c_topic" name="topic"><option value="">Seleccione</option><option value="Services for my child">Servicios para mi hijo</option><option value="Insurance and eligibility">Seguro médico y elegibilidad</option><option value="Existing client question">Pregunta de un cliente actual</option><option value="Schools and community partners">Escuelas y organizaciones de la comunidad</option><option value="Something else">Otro tema</option></select></div>
+          <div class="full"><label for="c_message">Mensaje <span class="req" aria-hidden="true">*</span></label><textarea id="c_message" name="message" required maxlength="4000"></textarea><p class="hint">Por favor, no incluya detalles médicos en este formulario. Le pediremos lo que necesitemos por teléfono.</p></div>
+        </div>
+        <div class="hp" aria-hidden="true"><label for="website3">Deje este campo vacío</label><input id="website3" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="form-actions"><button class="btn btn-primary btn-lg" type="submit">Enviar mensaje</button></div>
+        <div class="form-status" role="alert" aria-live="polite"></div>
+      </form>
+    </div>
+  </div>
+</section>
+<style>@media (max-width: 900px) { #main .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>

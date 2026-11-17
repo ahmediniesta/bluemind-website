@@ -1,3 +1,5 @@
+// Texts for the page's language (assets/i18n-<lang>.js sets window.BM_T; English pages have none).
+window.bmT = function (k, d) { var T = window.BM_T || {}; return T[k] || d; };
 /* BlueMind Therapy — site behaviour: mobile nav, photo slots, and the three forms. */
 (function () {
   // frame-bust: never let another site wrap these forms in a frame (phishing overlay).
@@ -84,8 +86,8 @@
     card.querySelector('h2').textContent = title;
     card.querySelector('.lede').textContent = body;
     if (result && result.reference) {
-      card.querySelector('.ref').textContent = 'Your reference number is ' + result.reference + '.';
-      card.querySelector('.small').textContent = 'Keep it handy if you call us about this submission.';
+      card.querySelector('.ref').textContent = bmT('js_reference', 'Your reference number is {ref}.').replace('{ref}', result.reference);
+      card.querySelector('.small').textContent = bmT('js_keep_handy', 'Keep it handy if you call us about this submission.');
     }
     if (form.dataset.successAgain) {
       var again = document.createElement('button');
@@ -111,7 +113,7 @@
       });
       if (missing.length) {
         var m = missing[0].querySelector('[data-require-error]');
-        if (m) { m.textContent = missing[0].dataset.requireMessage || 'Please choose at least one.'; m.classList.add('show'); }
+        if (m) { m.textContent = missing[0].dataset.requireMessage || bmT('js_choose_one', 'Please choose at least one.'); m.classList.add('show'); }
         var f = missing[0].querySelector('input'); if (f) f.focus();
         return;
       }
@@ -125,7 +127,7 @@
 
       var button = form.querySelector('button[type="submit"]');
       var original = button ? button.textContent : '';
-      if (button) { button.disabled = true; button.textContent = 'Sending…'; }
+      if (button) { button.disabled = true; button.textContent = bmT('js_sending', 'Sending…'); }
 
       var url = (cfg.apiBase || '') + endpoint.path;
       var options = { method: 'POST', mode: 'cors', credentials: 'omit' };
@@ -337,12 +339,12 @@
     steps.forEach(function (fs, i) {
       var li = document.createElement('li');
       var legend = fs.querySelector('legend');
-      li.textContent = (i + 1) + '. ' + (fs.dataset.stepLabel || (legend ? legend.textContent.trim() : 'Step ' + (i + 1)));
+      li.textContent = (i + 1) + '. ' + (fs.dataset.stepLabel || (legend ? legend.textContent.trim() : bmT('js_step_fallback', 'Step {n}').replace('{n}', i + 1)));
       list.appendChild(li);
     });
     form.insertBefore(stepper, form.firstChild);
     var nav = document.createElement('div'); nav.className = 'step-nav';
-    nav.innerHTML = '<button type="button" class="btn btn-secondary" data-back>Back</button><span class="spacer"></span><span class="small muted" data-pos></span><button type="button" class="btn btn-primary" data-next>Continue</button>';
+    nav.innerHTML = '<button type="button" class="btn btn-secondary" data-back>' + bmT('js_back', 'Back') + '</button><span class="spacer"></span><span class="small muted" data-pos></span><button type="button" class="btn btn-primary" data-next>' + bmT('js_next', 'Continue') + '</button>';
     var err = document.createElement('p'); err.className = 'step-error'; err.setAttribute('role', 'alert');
     var actions = form.querySelector('.form-actions');
     form.insertBefore(err, actions);
@@ -361,7 +363,7 @@
       next.hidden = last;
       nav.hidden = last;
       form.classList.toggle('last', last);
-      pos.textContent = 'Step ' + (idx + 1) + ' of ' + steps.length;
+      pos.textContent = bmT('js_step', 'Step {n} of {total}').replace('{n}', idx + 1).replace('{total}', steps.length);
       err.classList.remove('show');
       if (focus) {
         var first = steps[idx].querySelector('input, select, textarea');
@@ -379,13 +381,13 @@
       for (var g = 0; g < groups.length; g++) {
         var name = groups[g].dataset.requireOne, msg = groups[g].querySelector('[data-require-error]');
         var any = groups[g].querySelector('input[name="' + name + '"]:checked');
-        if (msg) { msg.textContent = any ? '' : (groups[g].dataset.requireMessage || 'Please choose at least one.'); msg.classList.toggle('show', !any); }
+        if (msg) { msg.textContent = any ? '' : (groups[g].dataset.requireMessage || bmT('js_choose_one', 'Please choose at least one.')); msg.classList.toggle('show', !any); }
         if (!any) { var first = groups[g].querySelector('input[name="' + name + '"]'); if (first) first.focus(); return false; }
       }
       return true;
     }
     next.addEventListener('click', function () {
-      if (!valid(steps[idx])) { err.textContent = 'Please complete the highlighted field to continue.'; err.classList.add('show'); return; }
+      if (!valid(steps[idx])) { err.textContent = bmT('js_complete_field', 'Please complete the highlighted field to continue.'); err.classList.add('show'); return; }
       show(idx + 1, true);
     });
     back.addEventListener('click', function () { show(idx - 1, true); });
@@ -405,7 +407,7 @@
   if (!document.body.hasAttribute('data-no-sticky')) {
     var cfg = window.BLUEMIND || {};
     var stick = document.createElement('div'); stick.className = 'sticky-cta';
-    stick.innerHTML = '<a class="btn btn-secondary" href="' + (cfg.phoneHref || 'tel:+17342525215') + '">Call us</a><a class="btn btn-primary" href="refer.html">Refer a child</a>';
+    stick.innerHTML = '<a class="btn btn-secondary" href="' + (cfg.phoneHref || 'tel:+17342525215') + '">' + bmT('js_call_us', 'Call us') + '</a><a class="btn btn-primary" href="' + bmT('js_refer_href', 'refer.html') + '">' + bmT('js_refer_child', 'Refer a child') + '</a>';
     var referLink = document.querySelector('.nav a.btn-primary');
     if (referLink) stick.querySelector('.btn-primary').setAttribute('href', referLink.getAttribute('href'));
     document.body.appendChild(stick);

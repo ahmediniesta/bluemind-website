@@ -506,3 +506,12 @@ a:hover > .ic:last-child, .btn:hover > .ic:last-child { transform: translateX(4p
 .phone-list.on-navy li span { color: rgba(255,255,255,.75); }
 .phone-list.on-navy li a { color: #fff; }
 .site-footer .cols address + a { display: inline-block; margin-top: 0.2rem; font-weight: 700; }
+
+/* Language switch in the header (English, Spanish). */
+.lang-switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); margin-inline-start: 0.5rem; }
+.nav .lang-switch a { padding: 0.3rem 0.65rem; border-radius: 999px; font-size: 0.85rem; font-weight: 700; color: var(--ink-2); text-decoration: none; line-height: 1.2; }
+.nav .lang-switch a:hover { background: var(--mist); color: var(--navy); }
+.nav .lang-switch a[aria-current="true"] { background: var(--navy); color: #fff; }
+@media (max-width: 860px) { .lang-switch { margin: 0.75rem 0 0; align-self: flex-start; } }
+
+.nav a { white-space: nowrap; }

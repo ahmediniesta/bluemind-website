@@ -77,6 +77,59 @@ CENTERS = [
 ]
 
 
+# Other languages. Each has src/i18n/<code>.json (shared texts) and src/pages-<code>/ (the
+# translated pages). Pages that are not translated stay English and are linked as such.
+# Owner 2026-11-17: Spanish only. No Arabic anywhere on the site.
+LANGS = {"es": {"dir": "ltr", "name": "Español"}}
+_T: dict = {}
+
+
+def T(lang: str) -> dict:
+    """Shared texts for a language, English filling any gap."""
+    import json
+    if lang not in _T:
+        base = json.loads((ROOT / "src" / "i18n" / "en.json").read_text(encoding="utf-8"))
+        f = ROOT / "src" / "i18n" / f"{lang}.json"
+        if lang != "en" and f.exists():
+            base.update(json.loads(f.read_text(encoding="utf-8")))
+        _T[lang] = base
+    return _T[lang]
+
+
+def translated_slugs(lang: str) -> set:
+    d = ROOT / "src" / f"pages-{lang}"
+    return {f.stem for f in d.glob("*.html")} if d.exists() else set()
+
+
+def lang_switch(slug: str, lang: str) -> str:
+    """EN | Español. Points at the same page when that language has it, else its home."""
+    def url(code: str) -> str:
+        if code == "en":
+            return f"/{slug}.html"
+        target = slug if slug in translated_slugs(code) else "index"
+        return f"/{code}/{target}.html"
+    items = [("en", "EN")] + [(c, v["name"]) for c, v in LANGS.items() if translated_slugs(c)]
+    if len(items) == 1:
+        return ""
+    links = "".join(
+        f'<a href="{url(c)}" lang="{c}" hreflang="{c}"' + (' aria-current="true"' if c == lang else "") + f'>{label}</a>'
+        for c, label in items
+    )
+    return f'<div class="lang-switch" role="group" aria-label="Language">{links}</div>'
+
+
+def localize_links(html: str, lang: str) -> str:
+    """Inside a translated page: internal links go to the translated page when
+    there is one, else to the English page; assets and photos become root paths
+    because the page lives one folder down. (No <base>: it breaks the SVG icons.)"""
+    have = translated_slugs(lang)
+    def fix(m):
+        slug, rest = m.group(1), m.group(2) or ""
+        return f'href="/{lang}/{slug}.html{rest}"' if slug in have else f'href="/{slug}.html{rest}"'
+    html = re.sub(r'href="([a-z0-9-]+)\.html([#?][^"]*)?"', fix, html)
+    return re.sub(r'(src|href)="(assets|photos)/', r'\1="/\2/', html)
+
+
 def maps_url(c: dict) -> str:
     q = f"{c['street']} {c['city']} {c['state']} {c['zip']}".replace(" ", "+")
     return f"https://www.google.com/maps/search/?api=1&query={q}"
@@ -166,28 +219,28 @@ def photo(name: str, label: str, cls: str = "", variant: str = "a", eager: bool 
 
 
 SAFETY = [
-    ("cctv", "24/7", "Cameras record every room, 24 hours a day", "كاميرات تسجّل كل غرفة على مدار الساعة", "Cámaras graban cada sala las 24 horas"),
-    ("lock", "", "Locked doors. Only staff and checked-in families enter", "أبواب مقفلة، لا يدخل إلا الموظفون والعائلات المسجّلة", "Puertas con cerradura. Solo entran el personal y las familias registradas"),
-    ("id-check", "", "Every team member passes background checks", "كل عضو في الفريق يجتاز فحص السجل الجنائي", "Todo el personal pasa verificación de antecedentes"),
-    ("eye", "", "A BCBA supervises every child's program", "محلل سلوك معتمد يشرف على برنامج كل طفل", "Un BCBA supervisa el programa de cada niño"),
+    ("cctv", "24/7", "Cameras record every room, 24 hours a day", "Cámaras graban cada sala las 24 horas"),
+    ("lock", "", "Locked doors. Only staff and checked-in families enter", "Puertas con cerradura. Solo entran el personal y las familias registradas"),
+    ("id-check", "", "Every team member passes background checks", "Todo el personal pasa verificación de antecedentes"),
+    ("eye", "", "A BCBA supervises every child's program", "Un BCBA supervisa el programa de cada niño"),
 ]
 
 
-def safety_block() -> str:
+def safety_block(lang: str = "en") -> str:
+    t = T(lang)
     banner = (
         '<figure class="safety-photo">'
-        + photo("cameras", "The camera wall at one of our centers: every room on screen, recorded around the clock (feeds blurred for privacy)", "wide")
-        + '<figcaption><strong>Every room, on camera, 24/7.</strong> This is the monitor at one of our centers. The feeds are blurred here for privacy. In the building, every room is recorded around the clock.</figcaption>'
+        + photo("cameras", t["safety_alt"], "wide")
+        + f'<figcaption><strong>{t["safety_caption_strong"]}</strong> {t["safety_caption"]}</figcaption>'
         '</figure>'
     )
     cards = ""
-    for name, badge, en, ar, es in SAFETY:
+    for name, badge, en, es in SAFETY:
         badge_html = f'<span class="safety-badge">{badge}</span>' if badge else ""
         cards += (
             '<li class="safety-card">'
             f'<div class="safety-icon">{icon(name)}{badge_html}</div>'
             f'<p class="safety-en">{en}</p>'
-            f'<p class="safety-l" lang="ar" dir="rtl">{ar}</p>'
             f'<p class="safety-l" lang="es">{es}</p>'
             '</li>'
         )
@@ -228,24 +281,30 @@ def phone_list(cls: str = "") -> str:
     return f'<ul class="{klass}">{items}</ul>'
 
 
-def center_card(c: dict, with_photo: bool = False, detailed: bool = False) -> str:
-    hours = "".join(f"<tr><td>{d}</td><td>{h}</td></tr>" for d, h in c["hours"])
-    photo_html = photo(c["key"], f"The BlueMind Therapy center in {c['name']}", "wide", pos=c.get("photo_pos", "")) if with_photo else ""
+def center_card(c: dict, with_photo: bool = False, detailed: bool = False, lang: str = "en") -> str:
+    t = T(lang)
+    words = {
+        "Monday to Friday": t["day_weekdays"], "Saturday": t["day_saturday"], "Sunday": t["day_sunday"], "Closed": t["closed"],
+        "8:00 am to 8:00 pm": t["hours_weekday"], "8:00 am to 3:00 pm": t["hours_saturday"],
+        "Washtenaw County": t["county_washtenaw"], "Wayne County": t["county_wayne"], "St. Clair County": t["county_st_clair"],
+    }
+    hours = "".join(f"<tr><td>{words.get(d, d)}</td><td>{words.get(h, h)}</td></tr>" for d, h in c["hours"])
+    photo_html = photo(c["key"], t["photo_center_alt"].format(name=c["name"]), "wide", pos=c.get("photo_pos", "")) if with_photo else ""
     details = (
-        f'<p class="muted small" style="margin:0.5rem 0 0">Medicaid members: {c["payer"]}</p>'
+        f'<p class="muted small" style="margin:0.5rem 0 0">{t["card_medicaid"]} {c["payer"]}</p>'
         f'<table class="hours-table" style="margin-top:0.75rem"><tbody>{hours}</tbody></table>'
         if detailed else ""
     )
     return (
         f'<div class="card center-card" id="{c["key"]}">{photo_html}'
-        f'<div class="county">{c["county"]}</div>'
+        f'<div class="county">{words.get(c["county"], c["county"])}</div>'
         f'<h3 style="margin:0">{c["name"]}</h3>'
         f'<address>{c["street"]}<br>{c["city"]}, {c["state"]} {c["zip"]}</address>'
         f'{details}'
-        f'<div class="links"><a href="{maps_url(c)}" target="_blank" rel="noopener">Get directions</a>'
-        f'<a href="{c["phone_href"]}">Call {c["phone"]}</a>'
-        + (f'<a href="{center_slug(c)}.html">About the {c["name"]} center</a>'
-           f'<a href="refer.html?center={c["name"].replace(" ", "+")}">Refer to this center</a>' if detailed else "")
+        f'<div class="links"><a href="{maps_url(c)}" target="_blank" rel="noopener">{t["card_directions"]}</a>'
+        f'<a href="{c["phone_href"]}">{t["card_call"]} <span dir="ltr">{c["phone"]}</span></a>'
+        + (f'<a href="{center_slug(c)}.html">{t["card_about"].format(name=c["name"])}</a>'
+           f'<a href="refer.html?center={c["name"].replace(" ", "+")}">{t["card_refer"]}</a>' if detailed else "")
         + '</div></div>'
     )
 
@@ -507,52 +566,65 @@ def message_widget() -> str:
     )
 
 
-def header(active: str) -> str:
+def header(active: str, lang: str = "en", slug: str = "index") -> str:
+    t = T(lang)
+    labels = {"services": t["nav_services"], "locations": t["nav_locations"], "about": t["nav_about"],
+              "careers": t["nav_careers"], "contact": t["nav_contact"]}
     links = ""
-    for key, label, href in NAV:
+    for key, _label, href in NAV:
         current = ' aria-current="page"' if key == active else ""
-        links += f'<a href="{href}"{current}>{label}</a>'
+        links += f'<a href="{href}"{current}>{labels[key]}</a>'
 
     return (
-        '<a class="skip" href="#main">Skip to content</a>'
+        f'<a class="skip" href="#main">{t["skip"]}</a>'
         '<header class="site-header"><div class="wrap">'
         '<a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="48" height="48">'
-        '<span>BlueMind Therapy<small>Autism therapy services</small></span></a>'
-        f'<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="Open menu">{icon("menu")}</button>'
-        f'<nav class="nav" id="nav" aria-label="Main">{links}'
-        '<a class="btn btn-primary" href="refer.html">Refer a client</a></nav>'
+        f'<span>BlueMind Therapy<small>{t["brand_small"]}</small></span></a>'
+        f'<button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav" aria-label="{t["open_menu"]}">{icon("menu")}</button>'
+        f'<nav class="nav" id="nav" aria-label="Main">{links}{lang_switch(slug, lang)}'
+        f'<a class="btn btn-primary" href="refer.html">{t["nav_refer"]}</a></nav>'
         '</div></header>'
     )
 
 
-def footer() -> str:
+def footer(lang: str = "en") -> str:
+    t = T(lang)
     centers = "".join(
         f'<li><strong>{c["name"]}</strong><br><address>{c["street"]}<br>{c["city"]}, {c["state"]} {c["zip"]}</address>'
-        f'<a href="{c["phone_href"]}">{c["phone"]}</a></li>'
+        f'<a href="{c["phone_href"]}" dir="ltr">{c["phone"]}</a></li>'
         for c in CENTERS
     )
     return (
         '<footer class="site-footer"><div class="wrap"><div class="cols">'
-        '<div><a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="48" height="48"><span>BlueMind Therapy<small>Autism therapy services</small></span></a>'
-        '<p style="margin-top:1rem">One-on-one ABA therapy for children and teens with autism, at our three Michigan centers, at home, at school and in the community.</p>'
+        f'<div><a class="brand" href="index.html"><img src="assets/logo.png" alt="" width="48" height="48"><span>BlueMind Therapy<small>{t["brand_small"]}</small></span></a>'
+        f'<p style="margin-top:1rem">{t["footer_blurb"]}</p>'
         f'<p><a class="social" href="{ORG["instagram"]}" target="_blank" rel="noopener">{icon("instagram")} Instagram</a></p></div>'
-        f'<div><h4>Our centers</h4><ul>{centers}</ul></div>'
-        '<div><h4>Families</h4><ul><li><a href="services.html">Services</a></li><li><a href="index.html#how-it-works">How it works</a></li>'
-        '<li><a href="index.html#faq">Questions parents ask</a></li><li><a href="refer.html">Refer a child</a></li><li><a href="status.html">Check your status</a></li><li><a href="contact.html">Contact us</a></li></ul></div>'
-        f'<div><h4>Company</h4><ul><li><a href="about.html">About BlueMind</a></li><li><a href="careers.html">Careers</a></li><li><a href="locations.html">Locations</a></li>'
-        f'<li><a href="privacy.html">Privacy notice</a></li><li><a href="{ORG["dashboard"]}" rel="nofollow">Staff sign in</a></li></ul></div>'
-        '</div><div class="legal"><span>© <span data-year>2026</span> BlueMind Therapy LLC. All rights reserved.</span>'
-        '<span>Serving Washtenaw, Wayne, St. Clair and Monroe counties, Michigan</span></div></div></footer>'
+        f'<div><h4>{t["footer_centers"]}</h4><ul>{centers}</ul></div>'
+        f'<div><h4>{t["footer_families"]}</h4><ul><li><a href="services.html">{t["nav_services"]}</a></li><li><a href="index.html#how-it-works">{t["footer_how"]}</a></li>'
+        f'<li><a href="index.html#faq">{t["footer_faq"]}</a></li><li><a href="refer.html">{t["footer_refer"]}</a></li><li><a href="status.html">{t["footer_status"]}</a></li><li><a href="contact.html">{t["footer_contact"]}</a></li></ul></div>'
+        f'<div><h4>{t["footer_company"]}</h4><ul><li><a href="about.html">{t["footer_about"]}</a></li><li><a href="careers.html">{t["nav_careers"]}</a></li><li><a href="locations.html">{t["nav_locations"]}</a></li>'
+        f'<li><a href="privacy.html">{t["footer_privacy"]}</a></li><li><a href="{ORG["dashboard"]}" rel="nofollow">{t["footer_staff"]}</a></li></ul></div>'
+        f'</div><div class="legal"><span>© <span data-year>2026</span> BlueMind Therapy LLC. {t["footer_rights"]}</span>'
+        f'<span>{t["footer_serving"]}</span></div></div></footer>'
     )
 
 
-def head(meta: dict, slug: str, ld: str = "") -> str:
+def head(meta: dict, slug: str, ld: str = "", lang: str = "en") -> str:
     title = meta["title"] if slug == "index" else f'{meta["title"]} · BlueMind Therapy'
     desc = meta["description"]
-    canonical = SITE + ("/" if slug == "index" else f"/{slug}")
+    prefix = "" if lang == "en" else f"/{lang}"
+    canonical = SITE + prefix + ("/" if slug == "index" else f"/{slug}")
+    alts = ""
+    others = [c for c in LANGS if slug in translated_slugs(c)]
+    if others:
+        tail = "/" if slug == "index" else f"/{slug}"
+        alts = f'<link rel="alternate" hreflang="en" href="{SITE}{tail}"><link rel="alternate" hreflang="x-default" href="{SITE}{tail}">' + "".join(
+            f'<link rel="alternate" hreflang="{c}" href="{SITE}/{c}{tail}">' for c in others)
+    direction = LANGS.get(lang, {}).get("dir", "ltr")
+
     noindex = '<meta name="robots" content="noindex">' if meta.get("noindex") == "true" else ""
     return f"""<!doctype html>
-<html lang="en">
+<html lang="{lang}" dir="{direction}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -561,6 +633,7 @@ def head(meta: dict, slug: str, ld: str = "") -> str:
 <title>{title}</title>
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canonical}">
+{alts}
 {noindex}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="BlueMind Therapy">
@@ -593,7 +666,7 @@ def parse(path: Path) -> tuple[dict, str]:
     return meta, body
 
 
-def expand(body: str) -> str:
+def expand(body: str, lang: str = "en") -> str:
     """Tiny template tags so pages stay readable."""
     body = re.sub(r"\{\{icon:([a-z-]+)(?::([a-z -]+))?\}\}", lambda m: icon(m.group(1), m.group(2) or ""), body)
     body = re.sub(
@@ -602,20 +675,20 @@ def expand(body: str) -> str:
         body,
     )
     body = re.sub(r"\{\{gallery:([^}]+)\}\}", lambda m: gallery(m.group(1)), body)
-    body = body.replace("{{centers}}", "".join(center_card(c) for c in CENTERS))
-    body = body.replace("{{centers-detailed}}", "".join(center_card(c, with_photo=True, detailed=True) for c in CENTERS))
+    body = body.replace("{{centers}}", "".join(center_card(c, lang=lang) for c in CENTERS))
+    body = body.replace("{{centers-detailed}}", "".join(center_card(c, with_photo=True, detailed=True, lang=lang) for c in CENTERS))
     body = re.sub(r"\{\{phones(?::([a-z -]+))?\}\}", lambda m: phone_list(m.group(1) or ""), body)
     for k, v in ORG.items():
         body = body.replace("{{" + k + "}}", v)
     for k, v in REPLY.items():
         body = body.replace("{{reply:" + k + "}}", v)
-    body = body.replace("{{safety}}", safety_block())
+    body = body.replace("{{safety}}", safety_block(lang))
     return body
 
 
 def pretty_links(html: str) -> str:
-    html = re.sub(r'href="index\.html(#[^"]*)?"', lambda m: f'href="/{m.group(1) or ""}"', html)
-    return re.sub(r'href="([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'href="/{m.group(1)}{m.group(2) or ""}"', html)
+    html = re.sub(r'href="(/(?:[a-z]{2}/)?)?index\.html(#[^"]*)?"', lambda m: f'href="{m.group(1) or "/"}{m.group(2) or ""}"', html)
+    return re.sub(r'href="(/(?:[a-z]{2}/)?)?([a-z0-9-]+)\.html([#?][^"]*)?"', lambda m: f'href="{m.group(1) or "/"}{m.group(2)}{m.group(3) or ""}"', html)
 
 
 def build(out: Path, html_links: bool) -> list[str]:
@@ -627,7 +700,7 @@ def build(out: Path, html_links: bool) -> list[str]:
         body_attr = ' data-no-sticky' if meta.get("sticky") == "false" else ""
         widget = "" if meta.get("nav") == "contact" else message_widget()
         page = (
-            head(meta, slug, jobs_json_ld() if slug == "careers" else "") + f"\n<body{body_attr}>\n" + sprite() + header(meta.get("nav", "")) +
+            head(meta, slug, jobs_json_ld() if slug == "careers" else "") + f"\n<body{body_attr}>\n" + sprite() + header(meta.get("nav", ""), "en", slug) +
             f'<main id="main">{expand(body)}</main>' + footer() + widget +
             '\n<script src="assets/config.js"></script>\n<script src="assets/site.js" defer></script>\n</body>\n</html>\n'
         )
@@ -635,6 +708,38 @@ def build(out: Path, html_links: bool) -> list[str]:
             page = pretty_links(page)
         (out / f"{slug}.html").write_text(page, encoding="utf-8")
         slugs.append(slug)
+    lang_urls = []
+    for lang in LANGS:
+        src_dir = ROOT / "src" / f"pages-{lang}"
+        if not src_dir.exists():
+            continue
+        import json
+        (out / lang).mkdir(exist_ok=True)
+        (ROOT / "assets" / f"i18n-{lang}.js").write_text(
+            "window.BM_T = " + json.dumps({**{k: v for k, v in T(lang).items() if k.startswith("js_")}, "js_refer_href": f"/{lang}/refer" + (".html" if html_links else "")}, ensure_ascii=False) + ";\n",
+            encoding="utf-8",
+        )
+        for src in sorted(src_dir.glob("*.html")):
+            meta, body = parse(src)
+            slug = src.stem
+            body_attr = ' data-no-sticky' if meta.get("sticky") == "false" else ""
+            widget = "" if meta.get("nav") == "contact" else message_widget()
+            page = (
+                head(meta, slug, "", lang) + f"\n<body{body_attr}>\n" + sprite() + header(meta.get("nav", ""), lang, slug) +
+                f'<main id="main">{expand(body, lang)}</main>' + footer(lang) + widget +
+                f'\n<script src="assets/config.js"></script>\n<script src="assets/i18n-{lang}.js"></script>\n<script src="assets/site.js" defer></script>\n</body>\n</html>\n'
+            )
+            page = localize_links(page, lang)
+            if LANGS[lang]["dir"] == "rtl":
+                # Phone numbers and clock times read left to right even inside Arabic text.
+                parts = re.split(r"(<[^>]*>)", page)
+                for i in range(0, len(parts), 2):
+                    parts[i] = re.sub(r"(\(\d{3}\) \d{3}-\d{4})", r'<bdi dir="ltr">\1</bdi>', parts[i])
+                page = "".join(parts)
+            if not html_links:
+                page = pretty_links(page)
+            (out / lang / f"{slug}.html").write_text(page, encoding="utf-8")
+            lang_urls.append(f"{SITE}/{lang}" + ("/" if slug == "index" else f"/{slug}"))
     center_slugs = []
     for c in CENTERS:
         meta, body = center_page(c)
@@ -659,6 +764,7 @@ def build(out: Path, html_links: bool) -> list[str]:
         for s in slugs if s not in ("404",) and parse(SRC / f"{s}.html")[0].get("noindex") != "true"
     )
     urls += "".join(f"<url><loc>{SITE}/{s}</loc></url>" for s in center_slugs)
+    urls += "".join(f"<url><loc>{u}</loc></url>" for u in lang_urls)
     (out / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{urls}</urlset>\n',
         encoding="utf-8",

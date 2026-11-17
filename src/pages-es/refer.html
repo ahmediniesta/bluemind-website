@@ -1,0 +1,138 @@
+<!--
+title: Referir a un niño
+description: Referido para servicios de BlueMind Therapy. El formulario de referido que usan los administradores de casos del condado, los médicos, las escuelas y las familias para referir a un niño a servicios de ABA.
+nav: refer
+sticky: false
+-->
+<section class="page-intro"><div class="wrap">
+  <p class="eyebrow">Formulario de referido</p>
+  <h1>Referido para servicios de BlueMind Therapy</h1>
+  <p class="lede">Complete todos los campos obligatorios para referir a un cliente a nuestros servicios. Este es el mismo formulario de referido que usan nuestros socios del condado. Recibirá un número de referencia en cuanto lo envíe, y su avance se guarda en este dispositivo por si necesita volver más tarde.</p>
+</div></section>
+
+<section class="band band-tight">
+  <div class="wrap" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:2rem;align-items:start">
+    <div class="form-card">
+      <form data-stepper data-endpoint="referral" data-autosave="bluemind_referral_draft" data-remember="bluemind_referrer_profile:referred_by,case_manager_phone,case_manager_email" data-success-title="¡Listo! Su referido fue enviado." data-success-body="Gracias. Ya va en camino un comprobante al correo electrónico que nos dio, y nuestro equipo de admisión se comunicará con el padre, la madre o el tutor en un plazo de dos días hábiles. Recibirá un correo cada vez que el referido avance." data-success-again="Enviar otro referido" novalidate>
+
+        <fieldset data-step-label="Cliente">
+          <legend>Información del cliente</legend>
+          <div class="fields">
+            <div><label for="client_name">Nombre del cliente <span class="req" aria-hidden="true">*</span></label><input id="client_name" name="client_name" type="text" required maxlength="255" autocomplete="off"></div>
+            <div><label for="case_number">N.º de caso <span class="req" aria-hidden="true">*</span></label><input id="case_number" name="case_number" type="text" required maxlength="100" autocomplete="off"></div>
+            <div><label for="date_of_birth">Fecha de nacimiento <span class="req" aria-hidden="true">*</span></label><input id="date_of_birth" name="date_of_birth" type="date" required></div>
+            <div><span class="label" id="gender-label">Género <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="gender-label">
+                <label><input type="radio" name="gender" value="Male" required> Masculino</label>
+                <label><input type="radio" name="gender" value="Female"> Femenino</label>
+                <label><input type="radio" name="gender" value="Other"> Otro</label>
+              </div></div>
+            <div><label for="guardian_name">Nombre del tutor <span class="req" aria-hidden="true">*</span></label><input id="guardian_name" name="guardian_name" type="text" required maxlength="255"></div>
+            <div><label for="contact_number">Teléfono de contacto <span class="req" aria-hidden="true">*</span></label><input id="contact_number" name="contact_number" type="tel" required maxlength="40" placeholder="p. ej., (555) 123-4567" data-phone-format></div>
+            <div class="full"><label for="guardian_address">Dirección del tutor <span class="req" aria-hidden="true">*</span></label><input id="guardian_address" name="guardian_address" type="text" required maxlength="1000" placeholder="Calle, ciudad, estado, código postal"></div>
+            <div><label for="email">Correo electrónico <span class="req" aria-hidden="true">*</span></label><input id="email" name="email" type="email" required maxlength="255"></div>
+            <div><label for="primary_language">Idioma principal <span class="req" aria-hidden="true">*</span></label><input id="primary_language" name="primary_language" type="text" required list="languageList" maxlength="100" autocomplete="off"><datalist id="languageList"><option value="English"><option value="Spanish"><option value="Arabic"><option value="French"><option value="Chinese"><option value="Hindi"><option value="Russian"><option value="Other"></datalist></div>
+          </div>
+        </fieldset>
+
+        <fieldset data-step-label="Seguro">
+          <legend>Información del seguro médico</legend>
+          <div class="fields">
+            <div><label for="primary_insurance">Seguro principal <span class="req" aria-hidden="true">*</span></label><input id="primary_insurance" name="primary_insurance" type="text" required maxlength="255"></div>
+            <div><label for="primary_insurance_id">N.º de identificación del seguro <span class="req" aria-hidden="true">*</span></label><input id="primary_insurance_id" name="primary_insurance_id" type="text" required maxlength="100" autocomplete="off"></div>
+            <div><label for="secondary_insurance">Seguro secundario <span class="opt">(si tiene)</span></label><input id="secondary_insurance" name="secondary_insurance" type="text" maxlength="255"></div>
+            <div><label for="secondary_insurance_id">N.º de identificación del seguro</label><input id="secondary_insurance_id" name="secondary_insurance_id" type="text" maxlength="100" autocomplete="off"></div>
+          </div>
+        </fieldset>
+
+        <fieldset data-step-label="Referido">
+          <legend>Información del referido</legend>
+          <p class="legend-note" data-remember-note hidden>Para ahorrarle tiempo, completamos los datos de quien refiere con los de su último envío. <button type="button" class="link-btn" data-remember-clear>¿No es usted? Borrar</button></p>
+          <div class="fields">
+            <div><label for="referred_by">Referido por <span class="req" aria-hidden="true">*</span></label><input id="referred_by" name="referred_by" type="text" required maxlength="255"></div>
+            <div><label for="date_of_referral">Fecha del referido <span class="req" aria-hidden="true">*</span></label><input id="date_of_referral" name="date_of_referral" type="date" required></div>
+            <div><label for="case_manager_phone">Teléfono del administrador de casos <span class="req" aria-hidden="true">*</span></label><input id="case_manager_phone" name="case_manager_phone" type="tel" required maxlength="40" placeholder="p. ej., (555) 123-4567" data-phone-format></div>
+            <div><label for="case_manager_email">Correo electrónico del administrador de casos <span class="req" aria-hidden="true">*</span></label><input id="case_manager_email" name="case_manager_email" type="email" required maxlength="255" placeholder="p. ej., manager@example.com"></div>
+            <div class="full"><span class="label" id="center-label">Centro de preferencia <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="center-label">
+                <label><input type="radio" name="preferred_center" value="Dearborn" required> Dearborn</label>
+                <label><input type="radio" name="preferred_center" value="Ypsilanti"> Ypsilanti</label>
+                <label><input type="radio" name="preferred_center" value="Fort Gratiot"> Fort Gratiot</label>
+              </div></div>
+          </div>
+        </fieldset>
+
+        <fieldset data-step-label="Servicios">
+          <legend>Servicios solicitados</legend>
+          <div class="fields">
+            <div class="full" data-require-one="requested_services" data-require-message="Seleccione al menos un servicio"><span class="label" id="services-label">Marque todos los que correspondan <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="group" aria-labelledby="services-label">
+                <label><input type="checkbox" name="requested_services" value="ABA Therapy" data-multi checked> Terapia de Análisis Conductual Aplicado (ABA)</label>
+                <label><input type="checkbox" name="requested_services" value="Other" data-multi> Otro (especifique)</label>
+              </div>
+              <input id="other_service" name="other_service" type="text" maxlength="255" placeholder="Si seleccionó 'Otro', especifique aquí" aria-label="Otro servicio" style="margin-top:0.6rem">
+              <p class="step-error" data-require-error></p>
+            </div>
+            <div class="full"><span class="label" id="setting-label">Lugar del servicio <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="setting-label">
+                <label><input type="radio" name="service_setting" value="Home" required> Casa</label>
+                <label><input type="radio" name="service_setting" value="Center"> Centro</label>
+                <label><input type="radio" name="service_setting" value="Both"> Ambos</label>
+              </div></div>
+            <div class="full"><span class="label" id="aba-label">¿El cliente ha recibido servicios de ABA anteriormente? <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="aba-label">
+                <label><input type="radio" name="had_aba_before" value="Yes" required> Sí</label>
+                <label><input type="radio" name="had_aba_before" value="No"> No</label>
+              </div>
+              <div data-shows-when="had_aba_before=Yes" hidden style="margin-top:0.6rem"><input id="agency_name" name="agency_name" type="text" maxlength="255" placeholder="Nombre de la agencia" aria-label="Nombre de la agencia"></div>
+            </div>
+            <div class="full"><span class="label" id="interp-label">¿Necesita intérprete? <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="interp-label">
+                <label><input type="radio" name="interpreter_needed" value="Yes" required> Sí</label>
+                <label><input type="radio" name="interpreter_needed" value="No"> No</label>
+              </div>
+              <div data-shows-when="interpreter_needed=Yes" hidden style="margin-top:0.6rem"><input id="interpreter_language" name="interpreter_language" type="text" maxlength="100" placeholder="(árabe, español, etc.)" aria-label="Idioma del intérprete"></div>
+            </div>
+            <div class="full"><span class="label" id="dx-label">¿El cliente tiene un diagnóstico oficial de autismo (ASD/F84.0)? <span class="req" aria-hidden="true">*</span></span>
+              <div class="choices" role="radiogroup" aria-labelledby="dx-label">
+                <label><input type="radio" name="has_autism_dx" value="Yes" required> Sí</label>
+                <label><input type="radio" name="has_autism_dx" value="No"> No</label>
+              </div>
+              <div data-shows-when="has_autism_dx=Yes" hidden style="margin-top:0.6rem"><input id="dx_provider" name="dx_provider" type="text" maxlength="255" placeholder="(Proveedor y fecha del diagnóstico)" aria-label="Proveedor que hizo el diagnóstico y fecha"></div>
+            </div>
+            <div class="full"><label for="current_concerns">Conductas o inquietudes actuales <span class="req" aria-hidden="true">*</span></label><textarea id="current_concerns" name="current_concerns" rows="3" required maxlength="4000"></textarea></div>
+          </div>
+        </fieldset>
+
+        <div class="hp" aria-hidden="true"><label for="website">Deje este campo vacío</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+        <div class="form-actions">
+          <button class="btn btn-primary btn-lg" type="submit">Enviar referido</button>
+          <span class="small">Esta información es confidencial y se usa únicamente para tramitar el referido.</span>
+        </div>
+        <div class="form-status" role="alert" aria-live="polite"></div>
+      </form>
+    </div>
+
+    <aside style="display:grid;gap:1.25rem">
+      <div class="card card-mist">
+        <h3>Qué sigue después</h3>
+        <ol style="padding-left:1.2rem;margin:0;color:var(--ink-2);display:grid;gap:0.5rem">
+          <li>Recibe de inmediato un número de referencia y un comprobante por correo electrónico.</li>
+          <li>Nuestro equipo de admisión llama al padre, la madre o el tutor en un plazo de dos días hábiles.</li>
+          <li>Confirmamos el diagnóstico y el seguro médico, y solicitamos la autorización al condado.</li>
+          <li>Un BCBA programa la evaluación y el plan empieza a tomar forma.</li>
+        </ol>
+        <p class="small muted" style="margin:0.9rem 0 0">Recibe un correo cada vez que cambia el estado, y puede <a href="status.html">consultar el estado</a> en cualquier momento con su número de referencia.</p>
+      </div>
+      <div class="card">
+        <h3>¿Prefiere llamar?</h3>
+        <p>Nuestro equipo de admisión también recibe referidos por teléfono.</p>
+        <p style="margin:0"><a class="btn btn-secondary" href="{{phone_href}}">{{icon:phone}} {{phone}}</a></p>
+        <p class="small muted" style="margin:0.9rem 0 0">O escriba a <a href="mailto:{{email}}">{{email}}</a>.</p>
+      </div>
+      <div class="notice small">Por favor, no envíe expedientes por correo electrónico. Si necesitamos evaluaciones o cartas de autorización, le indicaremos la forma segura de compartirlas.</div>
+    </aside>
+  </div>
+</section>
+<script src="assets/refer.js" defer></script>
+<style>@media (max-width: 900px) { #main .wrap[style*="grid-template-columns"] { grid-template-columns: 1fr !important; } }</style>
