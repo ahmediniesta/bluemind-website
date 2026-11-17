@@ -391,6 +391,52 @@ def center_page(c: dict) -> tuple[dict, str]:
     return meta, body
 
 
+JOBS = [
+    {
+        "title": "Behavior Technician (RBT)", "type": ["FULL_TIME", "PART_TIME"],
+        "description": (
+            "<p>Deliver one-on-one ABA therapy sessions for children and teens with autism under BCBA supervision, at a center, "
+            "in homes and at schools. Run programs, collect data, write session notes and celebrate progress with families.</p>"
+            "<p>You bring: a high school diploma or higher, patience and energy for working with children, reliable transportation, "
+            "and a clean background check. RBT credential preferred; we train and support candidates who are working toward it.</p>"
+            "<p>Structured onboarding, hands-on training and supervision hours that count toward RBT requirements.</p>"
+        ),
+    },
+    {
+        "title": "Board Certified Behavior Analyst (BCBA)", "type": ["FULL_TIME"],
+        "description": (
+            "<p>Carry a manageable caseload, lead assessments and treatment planning, supervise and mentor technicians, and run "
+            "parent training. In person at a center, with telehealth for some supervision and family sessions.</p>"
+            "<p>You bring: current BCBA certification, Michigan licensure as a behavior analyst (or eligibility), and experience "
+            "with early intervention or school-age programs.</p>"
+        ),
+    },
+]
+
+
+def jobs_json_ld() -> str:
+    """Job postings for Google's job search. Both roles are open all year at
+    every center (owner 2026-11-17), so the posting date is the build date."""
+    import datetime
+    import json
+    today = datetime.date.today().isoformat()
+    graph = []
+    for j in JOBS:
+        graph.append({
+            "@type": "JobPosting", "title": j["title"], "description": j["description"],
+            "datePosted": today, "employmentType": j["type"], "directApply": True,
+            "url": f"{SITE}/careers",
+            "hiringOrganization": {"@type": "Organization", "name": ORG["name"], "sameAs": SITE, "logo": f"{SITE}/assets/logo.png"},
+            "jobLocation": [
+                {"@type": "Place", "address": {
+                    "@type": "PostalAddress", "streetAddress": c["street"], "addressLocality": c["city"],
+                    "addressRegion": c["state"], "postalCode": c["zip"], "addressCountry": "US"}}
+                for c in CENTERS
+            ],
+        })
+    return f'<script type="application/ld+json">{json.dumps({"@context": "https://schema.org", "@graph": graph}, separators=(",", ":"))}</script>'
+
+
 def json_ld() -> str:
     import json
     orgs = []
@@ -581,7 +627,7 @@ def build(out: Path, html_links: bool) -> list[str]:
         body_attr = ' data-no-sticky' if meta.get("sticky") == "false" else ""
         widget = "" if meta.get("nav") == "contact" else message_widget()
         page = (
-            head(meta, slug) + f"\n<body{body_attr}>\n" + sprite() + header(meta.get("nav", "")) +
+            head(meta, slug, jobs_json_ld() if slug == "careers" else "") + f"\n<body{body_attr}>\n" + sprite() + header(meta.get("nav", "")) +
             f'<main id="main">{expand(body)}</main>' + footer() + widget +
             '\n<script src="assets/config.js"></script>\n<script src="assets/site.js" defer></script>\n</body>\n</html>\n'
         )
