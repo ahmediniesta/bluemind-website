@@ -261,7 +261,7 @@ def center_faq(c: dict) -> list[tuple[str, str]]:
         (f"Where is the BlueMind Therapy center in {c['name']}?",
          f"{c['street']}, {c['city']}, {c['state']} {c['zip']}. {c['find']} Parking is free."),
         (f"What insurance does the {c['name']} center take?",
-         f"Medicaid through {c['payer']}, Blue Cross Blue Shield of Michigan, and private pay. Call {c['phone']} and we will check your plan with you."),
+         f"Medicaid through {c['payer']}, Blue Cross Blue Shield of Michigan, HAP and UnitedHealthcare, and private pay. Call {c['phone']} and we will check your plan with you."),
         ("What ages do you work with?",
          "Children and teens from 12 months to 18 years with an autism spectrum diagnosis."),
         (f"What are the hours at the {c['name']} center?", f"{hours}."),
@@ -361,7 +361,7 @@ def center_page(c: dict) -> tuple[dict, str]:
     <div class="card"><div class="icon">{icon('map')}</div><h3 id="area-h">Where we serve</h3>
       <p>Families come to the center in {name}. In-home, school and community sessions are scheduled from this center across {county}, including {towns}.</p></div>
     <div class="card"><div class="icon">{icon('shield')}</div><h3>Insurance</h3>
-      <p>Medicaid through {c['payer']}, Blue Cross Blue Shield of Michigan, and private pay. For Medicaid members we bill the county program directly.</p></div>
+      <p>Medicaid through {c['payer']}, Blue Cross Blue Shield of Michigan, HAP and UnitedHealthcare, and private pay. For Medicaid members we bill the county program directly.</p></div>
     <div class="card"><div class="icon">{icon('heart')}</div><h3>What we offer here</h3>
       <p>Assessment by a BCBA, one-on-one ABA therapy, parent training, and coordination with your child's school. <a href="services.html">See all services</a>.</p></div>
   </div>
